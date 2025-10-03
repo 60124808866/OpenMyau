@@ -1,0 +1,54 @@
+name: Build and Release MC 1.8.9 Mod
+
+on:
+  push:
+    tags:
+      - 'v*'  # 只在推送 tag 时触发，例如 v1.0.0
+  
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 22
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 22
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build 
+
+      # ==========================================================
+      # ⬇️ 【新增步骤】上传 Artifact (直接在 Actions 页面下载) ⬇️
+      # ==========================================================
+      - name: Upload Mod Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # Artifact 的名称，您可以在 Actions 页面看到这个名字
+          name: mc-1.8.9-mod-jar
+          # 要上传的文件或目录
+          path: build/libs/*.jar
+          # 保留时间 (可选，默认 90 天)，这里设置为 5 天
+          retention-days: 5 
+      # ==========================================================
+      
+      - name: Upload mod jar to Release
+        # 仅在被 Tag 推送触发时才执行发布步骤
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }} 
+          files: build/libs/*.jar
+          name: "MC 1.8.9 Mod Release ${{ github.ref_name }}"
+          body: "自动构建的 Minecraft 1.8.9 Mod JAR 文件"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
