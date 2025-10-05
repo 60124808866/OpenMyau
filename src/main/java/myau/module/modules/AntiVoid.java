@@ -8,6 +8,7 @@ import myau.event.types.Priority;
 import myau.events.KeyEvent;
 import myau.events.PlayerUpdateEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.PlayerUtil;
 import myau.util.RandomUtil;
 import myau.property.properties.FloatProperty;
@@ -119,5 +120,10 @@ public class AntiVoid extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.mode.getModeString())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

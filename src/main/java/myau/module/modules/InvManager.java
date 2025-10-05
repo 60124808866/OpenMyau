@@ -5,6 +5,7 @@ import myau.event.types.EventType;
 import myau.events.UpdateEvent;
 import myau.events.WindowClickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ItemUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.IntProperty;
@@ -220,5 +221,10 @@ public class InvManager extends Module {
                     this.minDelay.setValue(this.maxDelay.getValue());
                 }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }

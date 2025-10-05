@@ -4,6 +4,7 @@ import myau.event.EventTarget;
 import myau.events.TickEvent;
 import myau.mixin.IAccessorEntityLivingBase;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.KeyBindUtil;
 import myau.property.properties.BooleanProperty;
 import net.minecraft.client.Minecraft;
@@ -17,6 +18,11 @@ public class Sprint extends Module {
 
     public Sprint() {
         super("Sprint", true, true);
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 
     public boolean shouldApplyFovFix(IAttributeInstance attribute) {

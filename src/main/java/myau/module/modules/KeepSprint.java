@@ -1,6 +1,7 @@
 package myau.module.modules;
 
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.PercentProperty;
 import net.minecraft.client.Minecraft;
@@ -21,5 +22,10 @@ public class KeepSprint extends Module {
         } else {
             return !this.reachOnly.getValue() || mc.objectMouseOver.hitVec.distanceTo(mc.getRenderViewEntity().getPositionEyes(1.0F)) > 3.0;
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

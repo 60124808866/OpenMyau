@@ -1,10 +1,11 @@
 package myau.module;
 
 import myau.Myau;
+import myau.module.category.ICategory;
 import myau.module.modules.HUD;
 import myau.util.KeyBindUtil;
 
-public abstract class Module {
+public abstract class Module implements ICategory {
     protected final String name;
     protected final boolean defaultEnabled;
     protected final int defaultKey;

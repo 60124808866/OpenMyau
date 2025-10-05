@@ -5,6 +5,7 @@ import myau.event.EventTarget;
 import myau.events.Render3DEvent;
 import myau.mixin.IAccessorRenderManager;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.RenderUtil;
 import myau.property.properties.*;
 import myau.property.properties.BooleanProperty;
@@ -147,5 +148,10 @@ public class BedESP extends Module {
         if (mc.renderGlobal != null) {
             mc.renderGlobal.loadRenderers();
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

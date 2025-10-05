@@ -1,6 +1,9 @@
 package myau.module.modules;
 
+import myau.event.EventTarget;
+import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.BooleanProperty;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -15,6 +18,11 @@ public class AntiObbyTrap extends Module {
 
     public AntiObbyTrap() {
         super("AntiObbyTrap", false);
+    }
+
+    @Override
+    public Category category() {
+        return Category.MISC;
     }
 
     public boolean isInsideBlock(World world, BlockPos blockPos) {

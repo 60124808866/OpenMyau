@@ -6,6 +6,7 @@ import myau.events.PickEvent;
 import myau.events.RaytraceEvent;
 import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.FloatProperty;
 import myau.property.properties.PercentProperty;
 
@@ -49,5 +50,10 @@ public class Reach extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{df.format(this.range.getValue())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
     }
 }

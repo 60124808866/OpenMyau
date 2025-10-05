@@ -4,6 +4,7 @@ import myau.event.EventTarget;
 import myau.event.types.EventType;
 import myau.events.PacketEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ChatUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity;
@@ -63,5 +64,10 @@ public class LightningTracker extends Module {
                 );
             }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.MISC;
     }
 }

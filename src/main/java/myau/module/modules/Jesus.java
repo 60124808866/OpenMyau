@@ -1,6 +1,7 @@
 package myau.module.modules;
 
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.FloatProperty;
 
@@ -21,5 +22,10 @@ public class Jesus extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{df.format(this.speed.getValue())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

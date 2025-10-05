@@ -3,6 +3,7 @@ package myau.module.modules;
 import myau.event.EventTarget;
 import myau.events.RenderLivingEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.TeamUtil;
 import myau.property.properties.BooleanProperty;
 import net.minecraft.client.Minecraft;
@@ -83,5 +84,10 @@ public class Chams extends Module {
                 }
             }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

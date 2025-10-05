@@ -5,6 +5,7 @@ import myau.event.types.EventType;
 import myau.events.StrafeEvent;
 import myau.events.UpdateEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.KeyBindUtil;
 import myau.util.MoveUtil;
 import myau.property.properties.FloatProperty;
@@ -52,5 +53,10 @@ public class Fly extends Module {
         mc.thePlayer.motionY = 0.0;
         MoveUtil.setSpeed(0.0);
         KeyBindUtil.updateKeyState(mc.gameSettings.keyBindSneak.getKeyCode());
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

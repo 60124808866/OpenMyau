@@ -10,6 +10,7 @@ import myau.events.TickEvent;
 import myau.events.UpdateEvent;
 import myau.mixin.IAccessorC0DPacketCloseWindow;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.KeyBindUtil;
 import myau.util.PacketUtil;
 import myau.property.properties.ModeProperty;
@@ -182,5 +183,10 @@ public class InvWalk extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.mode.getModeString())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }

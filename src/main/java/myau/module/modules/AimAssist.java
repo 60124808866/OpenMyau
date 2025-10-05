@@ -6,6 +6,7 @@ import myau.event.types.EventType;
 import myau.events.KeyEvent;
 import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.*;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.FloatProperty;
@@ -32,6 +33,11 @@ public class AimAssist extends Module {
     public final BooleanProperty allowTools = new BooleanProperty("allow-tools", false, this.weaponOnly::getValue);
     public final BooleanProperty botChecks = new BooleanProperty("bot-check", true);
     public final BooleanProperty team = new BooleanProperty("teams", true);
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
+    }
 
     private boolean isValidTarget(EntityPlayer entityPlayer) {
         if (entityPlayer != mc.thePlayer && entityPlayer != mc.thePlayer.ridingEntity) {

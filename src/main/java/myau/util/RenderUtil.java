@@ -473,4 +473,26 @@ public class RenderUtil {
             this.put(62, new EnchantmentData("Lu", 3));
         }
     }
+
+    public static void drawFilledCircle(float x, float y, float radius, int color) {
+        float alpha = (color >> 24 & 0xFF) / 255.0f;
+        float red = (color >> 16 & 0xFF) / 255.0f;
+        float green = (color >> 8 & 0xFF) / 255.0f;
+        float blue = (color & 0xFF) / 255.0f;
+
+        GL11.glColor4f(red, green, blue, alpha);
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+        GL11.glVertex2f(x, y);
+
+        int segments = 20;
+        for (int i = 0; i <= segments; i++) {
+            double angle = 2.0 * Math.PI * i / segments;
+            GL11.glVertex2f(
+                    (float)(x + Math.cos(angle) * radius),
+                    (float)(y + Math.sin(angle) * radius)
+            );
+        }
+        GL11.glEnd();
+        GlStateManager.resetColor();
+    }
 }

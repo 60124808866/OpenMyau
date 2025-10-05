@@ -4,6 +4,7 @@ import myau.Myau;
 import myau.event.EventTarget;
 import myau.events.KeyEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ChatUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,6 +15,11 @@ public class MCF extends Module {
 
     public MCF() {
         super("MCF", false, true);
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 
     @EventTarget

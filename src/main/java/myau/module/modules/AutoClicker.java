@@ -6,6 +6,7 @@ import myau.event.types.Priority;
 import myau.events.LeftClickMouseEvent;
 import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ItemUtil;
 import myau.util.KeyBindUtil;
 import myau.util.RandomUtil;
@@ -142,5 +143,10 @@ public class AutoClicker extends Module {
         return Objects.equals(this.minCPS.getValue(), this.maxCPS.getValue())
                 ? new String[]{this.minCPS.getValue().toString()}
                 : new String[]{String.format("%d-%d", this.minCPS.getValue(), this.maxCPS.getValue())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
     }
 }

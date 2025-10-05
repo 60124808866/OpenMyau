@@ -10,6 +10,7 @@ import myau.events.*;
 import myau.management.RotationState;
 import myau.mixin.IAccessorPlayerControllerMP;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.*;
 import myau.property.properties.*;
 import net.minecraft.client.Minecraft;
@@ -955,6 +956,11 @@ public class KillAura extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.mode.getModeString())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
     }
 
     public static class AttackData {

@@ -11,6 +11,7 @@ import myau.events.TickEvent;
 import myau.mixin.IAccessorC03PacketPlayer;
 import myau.mixin.IAccessorMinecraft;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.*;
 import myau.property.properties.FloatProperty;
 import myau.property.properties.ModeProperty;
@@ -142,5 +143,10 @@ public class NoFall extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.mode.getModeString())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

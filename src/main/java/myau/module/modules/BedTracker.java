@@ -10,6 +10,7 @@ import myau.events.PacketEvent;
 import myau.events.Render2DEvent;
 import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ChatUtil;
 import myau.util.ColorUtil;
 import myau.util.SoundUtil;
@@ -337,5 +338,10 @@ public class BedTracker extends Module {
         this.trackedPearls.clear();
         this.whitelistedPlayers.clear();
         this.bedPos = null;
+    }
+
+    @Override
+    public Category category() {
+        return Category.MISC;
     }
 }

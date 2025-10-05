@@ -5,6 +5,7 @@ import myau.event.EventTarget;
 import myau.events.Render3DEvent;
 import myau.mixin.IAccessorRenderManager;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.RenderUtil;
 import myau.util.TeamUtil;
 import myau.property.properties.BooleanProperty;
@@ -208,5 +209,10 @@ public class ItemESP extends Module {
         public int hashCode() {
             return this.hashCode;
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

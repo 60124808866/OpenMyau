@@ -6,6 +6,7 @@ import myau.event.types.Priority;
 import myau.events.TickEvent;
 import myau.mixin.IAccessorEntityLivingBase;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.IntProperty;
 import net.minecraft.client.Minecraft;
 
@@ -28,5 +29,10 @@ public class NoJumpDelay extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{this.delay.getValue().toString()};
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

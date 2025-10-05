@@ -9,6 +9,7 @@ import myau.events.Render2DEvent;
 import myau.events.TickEvent;
 import myau.mixin.IAccessorGuiChat;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ColorUtil;
 import myau.util.RenderUtil;
 import myau.property.properties.*;
@@ -289,5 +290,10 @@ public class HUD extends Module {
             GlStateManager.enableDepth();
             GlStateManager.popMatrix();
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

@@ -8,6 +8,7 @@ import myau.events.LivingUpdateEvent;
 import myau.events.PlayerUpdateEvent;
 import myau.events.RightClickMouseEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.BlockUtil;
 import myau.util.ItemUtil;
 import myau.util.PlayerUtil;
@@ -127,5 +128,10 @@ public class NoSlow extends Module {
                 mc.thePlayer.motionY = 0.42F;
             }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

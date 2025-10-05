@@ -6,6 +6,7 @@ import myau.event.types.EventType;
 import myau.events.UpdateEvent;
 import myau.events.WindowClickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ChatUtil;
 import myau.util.ItemUtil;
 import myau.property.properties.BooleanProperty;
@@ -207,5 +208,10 @@ public class ChestStealer extends Module {
                     this.minDelay.setValue(this.maxDelay.getValue());
                 }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }

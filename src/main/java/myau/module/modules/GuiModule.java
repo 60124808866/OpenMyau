@@ -1,13 +1,15 @@
 package myau.module.modules;
 
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.ui.ClickGui;
+import myau.ui.controllable.FakeBrInterface;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 
 public class GuiModule extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private ClickGui clickGui;
+    private FakeBrInterface clickGui;
 
     public GuiModule() {
         super("ClickGui", false);
@@ -17,9 +19,13 @@ public class GuiModule extends Module {
     @Override
     public void onEnabled() {
         setEnabled(false);
-        if(clickGui == null){
-            clickGui = new ClickGui();
-        }
+        clickGui = new FakeBrInterface();
+        clickGui.initialize();
         mc.displayGuiScreen(clickGui);
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

@@ -11,6 +11,7 @@ import myau.events.*;
 import myau.management.RotationState;
 import myau.mixin.IAccessorPlayerControllerMP;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.*;
 import myau.property.properties.*;
 import myau.property.properties.BooleanProperty;
@@ -629,5 +630,10 @@ public class BedNuker extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, this.mode.getModeString())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.MISC;
     }
 }

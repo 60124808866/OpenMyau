@@ -6,6 +6,7 @@ import myau.event.types.EventType;
 import myau.events.SafeWalkEvent;
 import myau.events.UpdateEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ItemUtil;
 import myau.util.MoveUtil;
 import myau.util.PlayerUtil;
@@ -65,5 +66,10 @@ public class SafeWalk extends Module {
                 }
             }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

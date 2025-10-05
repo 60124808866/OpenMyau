@@ -1,6 +1,9 @@
 package myau.module.modules;
 
+import myau.event.EventTarget;
+import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.BooleanProperty;
 
 public class AntiDebuff extends Module {
@@ -9,5 +12,10 @@ public class AntiDebuff extends Module {
 
     public AntiDebuff() {
         super("AntiDebuff", false);
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }
