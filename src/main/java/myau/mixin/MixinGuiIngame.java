@@ -1,7 +1,7 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.Scaffold;
+import myau.module.modules.player.Scaffold;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;

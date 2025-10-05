@@ -1,11 +1,12 @@
 package myau.module;
 
 import myau.Myau;
-import myau.module.modules.HUD;
+import myau.module.modules.render.HUD;
 import myau.util.KeyBindUtil;
 
 public abstract class Module {
     protected final String name;
+    private final Category category;
     protected final boolean defaultEnabled;
     protected final int defaultKey;
     protected final boolean defaultHidden;
@@ -13,12 +14,13 @@ public abstract class Module {
     protected int key;
     protected boolean hidden;
 
-    public Module(String name, boolean enabled) {
-        this(name, enabled, false);
+    public Module(String name, Category category, boolean enabled) {
+        this(name, category, enabled, false);
     }
 
-    public Module(String name, boolean enabled, boolean hidden) {
+    public Module(String name, Category category, boolean enabled, boolean hidden) {
         this.name = name;
+        this.category = category;
         this.enabled = this.defaultEnabled = enabled;
         this.key = this.defaultKey = 0;
         this.hidden = this.defaultHidden = hidden;
@@ -71,6 +73,10 @@ public abstract class Module {
 
     public int getKey() {
         return this.key;
+    }
+
+    public Category getCategory() {
+        return category;
     }
 
     public void setKey(int integer) {

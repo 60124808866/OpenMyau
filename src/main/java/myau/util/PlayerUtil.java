@@ -1,7 +1,7 @@
 package myau.util;
 
 import myau.Myau;
-import myau.module.modules.KeepSprint;
+import myau.module.modules.move.KeepSprint;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.Minecraft;

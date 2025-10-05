@@ -5,8 +5,8 @@ import myau.event.EventTarget;
 import myau.event.types.EventType;
 import myau.events.KeyEvent;
 import myau.events.TickEvent;
-import myau.module.modules.GuiModule;
-import myau.module.modules.HUD;
+import myau.module.modules.render.GuiModule;
+import myau.module.modules.render.HUD;
 import myau.util.ChatUtil;
 import myau.util.SoundUtil;
 

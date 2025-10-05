@@ -2,7 +2,7 @@ package myau.util;
 
 import myau.Myau;
 import myau.management.RotationState;
-import myau.module.modules.TargetStrafe;
+import myau.module.modules.combat.TargetStrafe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.BlockPos;

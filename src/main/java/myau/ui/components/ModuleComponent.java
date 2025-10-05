@@ -3,7 +3,7 @@ package myau.ui.components;
 
 import myau.Myau;
 import myau.module.Module;
-import myau.module.modules.HUD;
+import myau.module.modules.render.HUD;
 import myau.property.Property;
 import myau.property.properties.*;
 import myau.ui.Component;
@@ -11,8 +11,6 @@ import myau.ui.dataset.impl.FloatSlider;
 import myau.ui.dataset.impl.IntSlider;
 import myau.ui.dataset.impl.PercentageSlider;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;

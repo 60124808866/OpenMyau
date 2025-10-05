@@ -1,9 +1,9 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.Chams;
-import myau.module.modules.ViewClip;
-import myau.module.modules.Xray;
+import myau.module.modules.render.Chams;
+import myau.module.modules.render.ViewClip;
+import myau.module.modules.render.Xray;
 import net.minecraft.client.renderer.chunk.SetVisibility;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraftforge.fml.relauncher.Side;

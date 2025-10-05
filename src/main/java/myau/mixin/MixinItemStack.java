@@ -1,7 +1,7 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.ESP;
+import myau.module.modules.render.ESP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

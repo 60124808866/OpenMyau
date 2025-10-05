@@ -3,7 +3,7 @@ package myau.mixin;
 import myau.Myau;
 import myau.event.EventManager;
 import myau.events.Render2DEvent;
-import myau.module.modules.NickHider;
+import myau.module.modules.misc.NickHider;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.fml.relauncher.Side;

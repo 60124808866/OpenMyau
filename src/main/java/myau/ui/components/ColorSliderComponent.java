@@ -1,8 +1,6 @@
 package myau.ui.components;
 
-import myau.Myau;
 import myau.enums.ChatColors;
-import myau.module.modules.HUD;
 import myau.property.properties.ColorProperty;
 import myau.ui.Component;
 import net.minecraft.client.Minecraft;

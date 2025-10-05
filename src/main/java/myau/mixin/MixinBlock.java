@@ -1,7 +1,7 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.Xray;
+import myau.module.modules.render.Xray;
 import net.minecraft.block.Block;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;

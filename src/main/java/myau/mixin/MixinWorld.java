@@ -1,8 +1,8 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.AntiObbyTrap;
-import myau.module.modules.Jesus;
+import myau.module.modules.misc.AntiObbyTrap;
+import myau.module.modules.move.Jesus;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;

@@ -7,7 +7,11 @@ import myau.event.EventManager;
 import myau.management.*;
 import myau.module.Module;
 import myau.module.ModuleManager;
-import myau.module.modules.*;
+import myau.module.modules.combat.*;
+import myau.module.modules.misc.*;
+import myau.module.modules.move.*;
+import myau.module.modules.player.*;
+import myau.module.modules.render.*;
 import myau.property.Property;
 import myau.property.PropertyManager;
 

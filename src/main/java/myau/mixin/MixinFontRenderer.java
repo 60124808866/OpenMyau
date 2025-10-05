@@ -1,8 +1,8 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.AntiObfuscate;
-import myau.module.modules.NickHider;
+import myau.module.modules.misc.AntiObfuscate;
+import myau.module.modules.misc.NickHider;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

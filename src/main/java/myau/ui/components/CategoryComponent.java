@@ -1,13 +1,15 @@
-
 package myau.ui.components;
 
+import myau.Myau;
 import myau.module.Module;
+import myau.module.Category;
 import myau.ui.Component;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +28,8 @@ public class CategoryComponent {
     public boolean pin = false;
     private double marginY, marginX;
 
-    public CategoryComponent(String category, List<Module> modules) {
-        this.categoryName = category;
+    public CategoryComponent(Category category) {
+        this.categoryName = category.getName();
         this.width = 92;
         this.x = 5;
         this.y = 5;
@@ -35,14 +37,44 @@ public class CategoryComponent {
         this.xx = 0;
         this.categoryOpened = false;
         this.dragging = false;
+
+        List<Module> modules = getModulesByCategory(category);
+
         int tY = this.bh + 3;
         this.marginX = 80;
         this.marginY = 4.5;
-        for (Iterator<Module> var3 = modules.iterator(); var3.hasNext(); tY += 16) {
-            Module mod = var3.next();
-            ModuleComponent b = new ModuleComponent(mod, this, tY);
-            this.modulesInCategory.add(b);
+
+        if (!modules.isEmpty()) {
+            for (Module mod : modules) {
+                if (mod != null) {
+                    ModuleComponent b = new ModuleComponent(mod, this, tY);
+                    this.modulesInCategory.add(b);
+                    tY += 16;
+                }
+            }
         }
+    }
+
+    private List<Module> getModulesByCategory(Category category) {
+        List<Module> modules = new ArrayList<>();
+
+        try {
+            if (Myau.moduleManager != null) {
+                for (Module module : Myau.moduleManager.modules.values()) {
+                    if (module != null && module.getCategory() == category) {
+                        modules.add(module);
+                    }
+                }
+            }
+
+            modules.sort(Comparator.comparing(m -> m.getName().toLowerCase()));
+
+        } catch (Exception e) {
+            System.err.println("Error getting modules for category: " + category);
+            e.printStackTrace();
+        }
+
+        return modules;
     }
 
     public ArrayList<Component> getModules() {
@@ -88,7 +120,7 @@ public class CategoryComponent {
             }
             Gui.drawRect(this.x - 1, this.y, this.x + this.width + 1, this.y + this.bh + categoryHeight + 4, (new Color(0, 0, 0, 100).getRGB()));
         }
-        Gui.drawRect( (this.x - 2),  this.y,  (this.x + this.width + 2),  (this.y + this.bh + 3), new Color(0,0,0,200).getRGB());
+        Gui.drawRect((this.x - 2), this.y, (this.x + this.width + 2), (this.y + this.bh + 3), new Color(0, 0, 0, 200).getRGB());
         renderer.drawString(this.categoryName, (float) (this.x + 2), (float) (this.y + 4), -1, false);
         renderer.drawString(this.categoryOpened ? "-" : "+", (float) (this.x + marginX), (float) ((double) this.y + marginY), Color.white.getRGB(), false);
         if (this.categoryOpened && !this.modulesInCategory.isEmpty()) {
@@ -110,7 +142,6 @@ public class CategoryComponent {
             component = iterator.next();
             component.setComponentStartAt(offset);
         }
-
     }
 
     public int getX() {
@@ -130,7 +161,6 @@ public class CategoryComponent {
             this.setX(x - this.xx);
             this.setY(y - this.yy);
         }
-
     }
 
     public boolean isHovered(int x, int y) {

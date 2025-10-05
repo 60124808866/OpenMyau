@@ -1,7 +1,7 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.Sprint;
+import myau.module.modules.move.Sprint;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;

@@ -1,7 +1,7 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.Xray;
+import myau.module.modules.render.Xray;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

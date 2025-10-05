@@ -1,8 +1,8 @@
 package myau.mixin;
 
 import myau.Myau;
-import myau.module.modules.BedESP;
-import myau.module.modules.Xray;
+import myau.module.modules.render.BedESP;
+import myau.module.modules.render.Xray;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockBed.EnumPartType;

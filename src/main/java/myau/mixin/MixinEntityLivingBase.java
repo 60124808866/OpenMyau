@@ -4,7 +4,7 @@ import myau.Myau;
 import myau.event.EventManager;
 import myau.events.StrafeEvent;
 import myau.management.RotationState;
-import myau.module.modules.Jesus;
+import myau.module.modules.move.Jesus;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
