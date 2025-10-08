@@ -47,7 +47,7 @@ public class AutoClicker extends Module {
     private boolean canClick() {
         if (!this.weaponsOnly.getValue()
                 || ItemUtil.hasRawUnbreakingEnchant()
-                || this.allowTools.getValue() && ItemUtil.isHoldingTool()) {
+                || this.allowTools.getValue() && ItemUtil.isHoldingTool() && !ItemUtil.isHoldingHoe())) {
             if (this.breakBlocks.getValue() && this.isBreakingBlock()) {
                 GameType gameType12 = mc.playerController.getCurrentGameType();
                 return gameType12 != GameType.SURVIVAL && gameType12 != GameType.CREATIVE;
