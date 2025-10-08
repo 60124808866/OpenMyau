@@ -169,7 +169,7 @@ public class KillAura extends Module {
             return false;
         } else if (!(Boolean) this.weaponsOnly.getValue()
                 || ItemUtil.hasRawUnbreakingEnchant()
-                || this.allowTools.getValue() && ItemUtil.isHoldingTool()) {
+                || this.allowTools.getValue() && ItemUtil.isHoldingTool() && !ItemUtil.isHoldingHoe())) {
             if (((IAccessorPlayerControllerMP) mc.playerController).getIsHittingBlock()) {
                 return false;
             } else if ((ItemUtil.isEating() || ItemUtil.isUsingBow()) && PlayerUtil.isUsingItem()) {
