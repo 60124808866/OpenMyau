@@ -73,8 +73,8 @@ public class AimAssist extends Module {
     public void onTick(TickEvent event) {
         if (this.isEnabled() && event.getType() == EventType.POST && mc.currentScreen == null) {
             if (!(Boolean) this.weaponOnly.getValue()
-                    || ItemUtil.hasRawUnbreakingEnchant()
-                    || this.allowTools.getValue() && ItemUtil.isHoldingTool()) {
+                          || ItemUtil.hasRawUnbreakingEnchant()
+                          || (this.allowTools.getValue() && ItemUtil.isHoldingTool() && !ItemUtil.isHoldingHoe())) {
                 boolean attacking = PlayerUtil.isAttacking();
                 if (!attacking || !this.isLookingAtBlock()) {
                     if (attacking || !this.timer.hasTimeElapsed(350L)) {
