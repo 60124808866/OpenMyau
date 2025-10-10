@@ -4,6 +4,7 @@ import myau.enums.ChatColors;
 import myau.event.EventTarget;
 import myau.events.Render2DEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.RenderUtil;
 import myau.util.RotationUtil;
 import myau.util.TeamUtil;
@@ -117,5 +118,10 @@ public class Indicators extends Module {
             GlStateManager.enableDepth();
             GlStateManager.popMatrix();
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

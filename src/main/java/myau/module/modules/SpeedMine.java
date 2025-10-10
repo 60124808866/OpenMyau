@@ -5,6 +5,7 @@ import myau.event.types.EventType;
 import myau.events.TickEvent;
 import myau.mixin.IAccessorPlayerControllerMP;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.IntProperty;
 import myau.property.properties.PercentProperty;
 import net.minecraft.client.Minecraft;
@@ -41,5 +42,10 @@ public class SpeedMine extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{String.format("%d%%", this.speed.getValue())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }

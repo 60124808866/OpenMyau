@@ -4,6 +4,7 @@ import myau.event.EventTarget;
 import myau.event.types.EventType;
 import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ItemUtil;
 import myau.util.KeyBindUtil;
 import myau.property.properties.BooleanProperty;
@@ -64,5 +65,10 @@ public class AutoTool extends Module {
         this.currentToolSlot = -1;
         this.previousSlot = -1;
         this.tickDelayCounter = 0;
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }

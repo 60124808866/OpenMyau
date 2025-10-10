@@ -6,6 +6,7 @@ import myau.event.EventTarget;
 import myau.events.Render3DEvent;
 import myau.mixin.IAccessorRenderManager;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ColorUtil;
 import myau.util.RenderUtil;
 import myau.util.TeamUtil;
@@ -253,5 +254,10 @@ public class NameTags extends Module {
                 }
             }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

@@ -6,6 +6,7 @@ import myau.event.types.Priority;
 import myau.events.MoveInputEvent;
 import myau.events.PacketEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.TimerUtil;
 import myau.property.properties.FloatProperty;
 import net.minecraft.client.Minecraft;
@@ -32,6 +33,11 @@ public class Wtap extends Module {
 
     public Wtap() {
         super("WTap", false);
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
     }
 
     @EventTarget(Priority.LOWEST)

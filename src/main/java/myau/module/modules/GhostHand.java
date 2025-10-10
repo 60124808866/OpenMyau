@@ -1,6 +1,7 @@
 package myau.module.modules;
 
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ItemUtil;
 import myau.util.TeamUtil;
 import myau.property.properties.BooleanProperty;
@@ -13,6 +14,11 @@ public class GhostHand extends Module {
 
     public GhostHand() {
         super("GhostHand", false);
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 
     public boolean shouldSkip(Entity entity) {

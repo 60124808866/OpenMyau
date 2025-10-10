@@ -8,6 +8,7 @@ import myau.events.Render3DEvent;
 import myau.events.StrafeEvent;
 import myau.events.UpdateEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.*;
 import myau.property.properties.*;
 import myau.property.properties.BooleanProperty;
@@ -197,6 +198,11 @@ public class TargetStrafe extends Module {
     public void onDisabled() {
         this.target = null;
         this.targetYaw = Float.NaN;
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
     }
 
     public static class Vec2d {

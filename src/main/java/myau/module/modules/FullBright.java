@@ -4,6 +4,7 @@ import myau.event.EventTarget;
 import myau.event.types.EventType;
 import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.ModeProperty;
 import net.minecraft.client.Minecraft;
 import net.minecraft.potion.Potion;
@@ -63,5 +64,10 @@ public class FullBright extends Module {
             this.onDisabled();
             this.onEnabled();
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

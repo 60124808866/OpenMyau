@@ -8,6 +8,7 @@ import myau.event.types.Priority;
 import myau.events.LoadWorldEvent;
 import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.IntProperty;
 import myau.property.properties.ModeProperty;
 
@@ -53,5 +54,10 @@ public class Blink extends Module {
     @Override
     public void onDisabled() {
         Myau.blinkManager.setBlinkState(false, BlinkModules.BLINK);
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

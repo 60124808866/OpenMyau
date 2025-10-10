@@ -1,6 +1,7 @@
 package myau.module.modules;
 
 import myau.module.Module;
+import myau.module.category.Category;
 import net.minecraft.client.Minecraft;
 
 public class ViewClip extends Module {
@@ -22,5 +23,10 @@ public class ViewClip extends Module {
         if (mc.theWorld != null) {
             mc.renderGlobal.loadRenderers();
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

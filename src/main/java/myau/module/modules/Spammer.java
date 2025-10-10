@@ -3,6 +3,7 @@ package myau.module.modules;
 import myau.event.EventTarget;
 import myau.events.Render2DEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.TimerUtil;
 import myau.property.properties.FloatProperty;
 import myau.property.properties.IntProperty;
@@ -19,6 +20,11 @@ public class Spammer extends Module {
 
     public Spammer() {
         super("Spammer", false);
+    }
+
+    @Override
+    public Category category() {
+        return Category.MISC;
     }
 
     @EventTarget

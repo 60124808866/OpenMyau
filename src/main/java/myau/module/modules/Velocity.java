@@ -9,6 +9,7 @@ import myau.event.types.EventType;
 import myau.events.*;
 import myau.mixin.IAccessorEntity;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ChatUtil;
 import myau.util.MoveUtil;
 import myau.property.properties.*;
@@ -214,5 +215,10 @@ public class Velocity extends Module {
                 ChatColors.formatColor(String.format(this.mode.getValue() == 3 ? "&m%d%%&r" : "%d%%", this.horizontal.getValue())),
                 String.format("%d%%", this.vertical.getValue())
         };
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
     }
 }

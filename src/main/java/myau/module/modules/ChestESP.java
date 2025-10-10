@@ -6,6 +6,7 @@ import myau.events.Render3DEvent;
 import myau.mixin.IAccessorMinecraft;
 import myau.mixin.IAccessorRenderManager;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.RenderUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.ColorProperty;
@@ -119,5 +120,10 @@ public class ChestESP extends Module {
             }
             RenderUtil.disableRenderState();
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

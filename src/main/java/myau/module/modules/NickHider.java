@@ -1,7 +1,10 @@
 package myau.module.modules;
 
 import myau.enums.ChatColors;
+import myau.event.EventTarget;
+import myau.events.PacketEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.TextProperty;
 import net.minecraft.client.Minecraft;
@@ -16,6 +19,11 @@ public class NickHider extends Module {
 
     public NickHider() {
         super("NickHider", false, true);
+    }
+
+    @Override
+    public Category category() {
+        return Category.MISC;
     }
 
     public String replaceNick(String input) {

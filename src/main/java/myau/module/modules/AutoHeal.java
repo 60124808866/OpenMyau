@@ -5,6 +5,7 @@ import myau.event.types.Priority;
 import myau.events.*;
 import myau.mixin.IAccessorPlayerControllerMP;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.PacketUtil;
 import myau.util.TimerUtil;
 import myau.property.properties.BooleanProperty;
@@ -114,5 +115,10 @@ public class AutoHeal extends Module {
         if (this.isEnabled() && this.isSwitching()) {
             event.setCancelled(true);
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }

@@ -5,6 +5,7 @@ import myau.event.types.EventType;
 import myau.events.TickEvent;
 import myau.mixin.IAccessorMinecraft;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.RotationUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.FloatProperty;
@@ -78,5 +79,10 @@ public class FastPlace extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{df.format(this.delay.getValue())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }

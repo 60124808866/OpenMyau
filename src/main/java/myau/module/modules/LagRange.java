@@ -9,6 +9,7 @@ import myau.events.TickEvent;
 import myau.mixin.IAccessorPlayerControllerMP;
 import myau.mixin.IAccessorRenderManager;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ItemUtil;
 import myau.util.RenderUtil;
 import myau.util.RotationUtil;
@@ -212,5 +213,10 @@ public class LagRange extends Module {
     @Override
     public String[] getSuffix() {
         return new String[]{String.format("%dms", this.delay.getValue())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.COMBAT;
     }
 }

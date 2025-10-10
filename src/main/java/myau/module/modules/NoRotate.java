@@ -5,6 +5,7 @@ import myau.event.types.EventType;
 import myau.events.LoadWorldEvent;
 import myau.events.PacketEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.PacketUtil;
 import myau.util.RandomUtil;
 import myau.util.RotationUtil;
@@ -91,5 +92,10 @@ public class NoRotate extends Module {
     @Override
     public void onDisabled() {
         this.reset = false;
+    }
+
+    @Override
+    public Category category() {
+        return Category.MISC;
     }
 }

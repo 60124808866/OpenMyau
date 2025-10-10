@@ -7,6 +7,7 @@ import myau.event.types.EventType;
 import myau.events.PacketEvent;
 import myau.events.Render2DEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ColorUtil;
 import myau.util.RenderUtil;
 import myau.util.TeamUtil;
@@ -228,5 +229,10 @@ public class TargetHUD extends Module {
                 this.lastTarget = (EntityLivingBase) entity;
             }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

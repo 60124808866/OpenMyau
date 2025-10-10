@@ -7,6 +7,7 @@ import myau.events.PacketEvent;
 import myau.events.Render3DEvent;
 import myau.mixin.IAccessorMinecraft;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.RenderUtil;
 import myau.property.properties.*;
 import myau.property.properties.BooleanProperty;
@@ -322,6 +323,10 @@ public class Xray extends Module {
         if (this.isEnabled() && mc.renderGlobal != null) {
             mc.renderGlobal.loadRenderers();
         }
+    }
+
+    public Category category() {
+        return Category.RENDER;
     }
 
     static {

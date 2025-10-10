@@ -6,6 +6,7 @@ import myau.event.types.Priority;
 import myau.events.MoveInputEvent;
 import myau.events.TickEvent;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ItemUtil;
 import myau.util.MoveUtil;
 import myau.util.PlayerUtil;
@@ -92,5 +93,10 @@ public class Eagle extends Module {
         return Objects.equals(this.minDelay.getValue(), this.maxDelay.getValue())
                 ? new String[]{this.minDelay.getValue().toString()}
                 : new String[]{String.format("%d-%d", this.minDelay.getValue(), this.maxDelay.getValue())};
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

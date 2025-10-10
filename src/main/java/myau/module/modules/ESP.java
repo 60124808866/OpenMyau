@@ -10,6 +10,7 @@ import myau.events.ResizeEvent;
 import myau.mixin.IAccessorEntityRenderer;
 import myau.mixin.IAccessorRenderManager;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.ColorUtil;
 import myau.util.RenderUtil;
 import myau.util.TeamUtil;
@@ -218,5 +219,10 @@ public class ESP extends Module {
             }
             RenderUtil.disableRenderState();
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }

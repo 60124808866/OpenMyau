@@ -7,6 +7,7 @@ import myau.events.LivingUpdateEvent;
 import myau.events.StrafeEvent;
 import myau.mixin.IAccessorEntity;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.MoveUtil;
 import myau.property.properties.FloatProperty;
 import myau.property.properties.PercentProperty;
@@ -62,5 +63,10 @@ public class Speed extends Module {
         if (this.isEnabled() && this.canBoost()) {
             mc.thePlayer.movementInput.jump = false;
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

@@ -9,6 +9,7 @@ import myau.events.*;
 import myau.management.RotationState;
 import myau.mixin.IAccessorPlayerControllerMP;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.*;
 import myau.property.properties.FloatProperty;
 import myau.property.properties.PercentProperty;
@@ -255,5 +256,10 @@ public class LongJump extends Module {
     public String[] getSuffix() {
         String mode = this.mode.getModeString();
         return mode.contains("FIREBALL") ? new String[]{"Fireball"} : new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, mode)};
+    }
+
+    @Override
+    public Category category() {
+        return Category.MOVEMENT;
     }
 }

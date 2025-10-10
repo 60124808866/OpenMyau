@@ -7,6 +7,7 @@ import myau.event.types.Priority;
 import myau.events.*;
 import myau.management.RotationState;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.*;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.ModeProperty;
@@ -761,5 +762,10 @@ public class Scaffold extends Module {
         public EnumFacing facing() {
             return this.facing;
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.PLAYER;
     }
 }

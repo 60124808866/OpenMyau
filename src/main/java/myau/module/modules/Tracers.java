@@ -7,6 +7,7 @@ import myau.events.Render2DEvent;
 import myau.events.Render3DEvent;
 import myau.mixin.IAccessorMinecraft;
 import myau.module.Module;
+import myau.module.category.Category;
 import myau.util.RenderUtil;
 import myau.util.RotationUtil;
 import myau.util.TeamUtil;
@@ -194,5 +195,10 @@ public class Tracers extends Module {
                 GlStateManager.popMatrix();
             }
         }
+    }
+
+    @Override
+    public Category category() {
+        return Category.RENDER;
     }
 }
