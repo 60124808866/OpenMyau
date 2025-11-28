@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SideOnly(Side.CLIENT)
-@Mixin({GuiIngameForge.class})
+@Mixin(value = {GuiIngameForge.class}, priority = 9999)
 public abstract class MixinGuiIngameForge {
     @Inject(
             method = {"renderGameOverlay"},

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SideOnly(Side.CLIENT)
-@Mixin({BlockModelRenderer.class})
+@Mixin(value = {BlockModelRenderer.class}, priority = 9999)
 public abstract class MixinBlockModelRenderer {
     @Shadow
     public boolean renderModelAmbientOcclusion(

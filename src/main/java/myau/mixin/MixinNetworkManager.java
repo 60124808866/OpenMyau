@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.concurrent.Future;
 
 @SideOnly(Side.CLIENT)
-@Mixin({NetworkManager.class})
+@Mixin(value = {NetworkManager.class}, priority = 9999)
 public abstract class MixinNetworkManager {
     @Inject(
             method = {"channelRead0*"},

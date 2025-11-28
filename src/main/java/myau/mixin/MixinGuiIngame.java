@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @SideOnly(Side.CLIENT)
-@Mixin({GuiIngame.class})
+@Mixin(value = {GuiIngame.class}, priority = 9999)
 public abstract class MixinGuiIngame {
     @Redirect(
             method = {"updateTick"},

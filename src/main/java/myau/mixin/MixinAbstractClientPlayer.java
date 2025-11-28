@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @SideOnly(Side.CLIENT)
-@Mixin({AbstractClientPlayer.class})
+@Mixin(value = {AbstractClientPlayer.class}, priority = 9999)
 public abstract class MixinAbstractClientPlayer extends MixinEntityPlayer {
     @Redirect(
             method = {"getFovModifier"},

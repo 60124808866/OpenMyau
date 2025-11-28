@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SideOnly(Side.CLIENT)
-@Mixin({PlayerControllerMP.class})
+@Mixin(value = {PlayerControllerMP.class}, priority = 9999)
 public abstract class MixinPlayerControllerMP {
 
     @Inject(

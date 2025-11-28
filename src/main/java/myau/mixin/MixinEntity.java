@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @SideOnly(Side.CLIENT)
-@Mixin({Entity.class})
+@Mixin(value = {Entity.class}, priority = 9999)
 public abstract class MixinEntity {
     @Shadow
     public World worldObj;
