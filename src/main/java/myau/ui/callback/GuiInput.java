@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import org.lwjgl.input.Keyboard;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -51,6 +52,11 @@ public class GuiInput extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
         textField.textboxKeyTyped(typedChar, keyCode);
+        if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
+            actionPerformed(buttonOk);
+        } else if (keyCode == Keyboard.KEY_ESCAPE) {
+            actionPerformed(null);
+        }
     }
 
     @Override

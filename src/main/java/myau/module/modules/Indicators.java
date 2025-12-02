@@ -15,7 +15,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderPearl;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.entity.projectile.EntityEgg;
 import net.minecraft.entity.projectile.EntityFireball;
+import net.minecraft.entity.projectile.EntitySnowball;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -31,6 +33,8 @@ public class Indicators extends Module {
     public final BooleanProperty fireballs = new BooleanProperty("fireballs", true);
     public final BooleanProperty pearls = new BooleanProperty("pearls", true);
     public final BooleanProperty arrows = new BooleanProperty("arrows", true);
+    public final BooleanProperty egg = new BooleanProperty("egg", true);
+    public final BooleanProperty snowball = new BooleanProperty("snowball", true);
 
     private boolean shouldRender(Entity entity) {
         double d = (entity.posX - entity.lastTickPosX) * (Indicators.mc.thePlayer.posX - entity.posX) + (entity.posY - entity.lastTickPosY) * (Indicators.mc.thePlayer.posY + (double) Indicators.mc.thePlayer.getEyeHeight() - entity.posY - (double) entity.height / 2.0) + (entity.posZ - entity.lastTickPosZ) * (Indicators.mc.thePlayer.posZ - entity.posZ);
@@ -42,14 +46,12 @@ public class Indicators extends Module {
                 return false;
             }
         }
-        if (this.fireballs.getValue()) {
-            if (entity instanceof EntityFireball) return true;
-        }
-        if (this.pearls.getValue()) {
-            if (entity instanceof EntityEnderPearl) return true;
-        }
-        if (this.arrows.getValue() == false) return false;
-        return entity instanceof EntityArrow;
+        if (this.fireballs.getValue() && entity instanceof EntityFireball) return true;
+        if (this.pearls.getValue() && entity instanceof EntityEnderPearl) return true;
+        if (this.arrows.getValue() && entity instanceof EntityArrow) return true;
+        if (this.egg.getValue() && entity instanceof EntityEgg) return true;
+        if (this.snowball.getValue() && entity instanceof EntitySnowball) return true;
+        return false;
     }
 
     private Item getIndicatorItem(Entity entity) {
@@ -61,6 +63,12 @@ public class Indicators extends Module {
         }
         if (entity instanceof EntityArrow) {
             return Items.arrow;
+        }
+        if (entity instanceof EntityEgg) {
+            return Items.egg;
+        }
+        if (entity instanceof EntitySnowball) {
+            return Items.snowball;
         }
         return new Item();
     }

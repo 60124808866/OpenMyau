@@ -74,6 +74,7 @@ public class ClickGui extends GuiScreen {
         renderModules.add(Myau.moduleManager.getModule(GuiModule.class));
         renderModules.add(Myau.moduleManager.getModule(ChestESP.class));
         renderModules.add(Myau.moduleManager.getModule(Trajectories.class));
+        renderModules.add(Myau.moduleManager.getModule(Radar.class));
 
         List<Module> playerModules = new ArrayList<>();
         playerModules.add(Myau.moduleManager.getModule(AutoHeal.class));
@@ -98,6 +99,7 @@ public class ClickGui extends GuiScreen {
         miscModules.add(Myau.moduleManager.getModule(NickHider.class));
         miscModules.add(Myau.moduleManager.getModule(AntiObbyTrap.class));
         miscModules.add(Myau.moduleManager.getModule(AntiObfuscate.class));
+        miscModules.add(Myau.moduleManager.getModule(AutoAnduril.class));
         miscModules.add(Myau.moduleManager.getModule(InventoryClicker.class));
 
         Comparator<Module> comparator = Comparator.comparing(m -> m.getName().toLowerCase());
@@ -217,32 +219,32 @@ public class ClickGui extends GuiScreen {
 
     }
 
-    public void mouseReleased(int x, int y, int s) {
-        if (s == 0) {
-            Iterator<CategoryComponent> iterator = categoryList.iterator();
+    public void mouseReleased(int x, int y, int mouseButton) {
+        Iterator<CategoryComponent> iterator = categoryList.iterator();
 
-            CategoryComponent categoryComponent;
-            while (iterator.hasNext()) {
-                categoryComponent = iterator.next();
+        CategoryComponent categoryComponent;
+        while (iterator.hasNext()) {
+            categoryComponent = iterator.next();
+            if (mouseButton == 0) {
                 categoryComponent.mousePressed(false);
             }
+        }
 
-            iterator = categoryList.iterator();
+        iterator = categoryList.iterator();
 
-            while (true) {
+        while (true) {
+            do {
                 do {
-                    do {
-                        if (!iterator.hasNext()) {
-                            return;
-                        }
+                    if (!iterator.hasNext()) {
+                        return;
+                    }
 
-                        categoryComponent = iterator.next();
-                    } while (!categoryComponent.isOpened());
-                } while (categoryComponent.getModules().isEmpty());
+                    categoryComponent = iterator.next();
+                } while (!categoryComponent.isOpened());
+            } while (categoryComponent.getModules().isEmpty());
 
-                for (Component component : categoryComponent.getModules()) {
-                    component.mouseReleased(x, y, s);
-                }
+            for (Component component : categoryComponent.getModules()) {
+                component.mouseReleased(x, y, mouseButton);
             }
         }
     }

@@ -8,6 +8,7 @@ import myau.module.Module;
 import myau.util.ItemUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.IntProperty;
+import myau.util.TimerUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.ContainerPlayer;
@@ -24,17 +25,25 @@ public class InvManager extends Module {
     private int actionDelay = 0;
     private int oDelay = 0;
     private boolean inventoryOpen = false;
+    private final TimerUtil autoArmorTime = new TimerUtil();
     public final IntProperty minDelay = new IntProperty("min-delay", 1, 0, 20);
     public final IntProperty maxDelay = new IntProperty("max-delay", 2, 0, 20);
     public final IntProperty openDelay = new IntProperty("open-delay", 1, 0, 20);
     public final BooleanProperty autoArmor = new BooleanProperty("auto-armor", true);
+    public final IntProperty autoArmorInterval = new IntProperty("autoArmorInterval", 0, 0, 100, this.autoArmor::getValue);
     public final BooleanProperty dropTrash = new BooleanProperty("drop-trash", false);
+    public final BooleanProperty checkDurability = new BooleanProperty("check-durability", true);
     public final IntProperty swordSlot = new IntProperty("sword-slot", 1, 0, 9);
     public final IntProperty pickaxeSlot = new IntProperty("pickaxe-slot", 3, 0, 9);
     public final IntProperty shovelSlot = new IntProperty("shovel-slot", 4, 0, 9);
     public final IntProperty axeSlot = new IntProperty("axe-slot", 5, 0, 9);
     public final IntProperty blocksSlot = new IntProperty("blocks-slot", 2, 0, 9);
     public final IntProperty blocks = new IntProperty("blocks", 128, 64, 2304);
+    public final IntProperty projectileSlot = new IntProperty("projectile-slot", 7, 0, 9);
+    public final IntProperty projectiles = new IntProperty("projectiles", 64, 16, 2304);
+    public final IntProperty goldAppleSlot = new IntProperty("gold-apple-slot", 9, 0, 9);
+    public final IntProperty arrow = new IntProperty("arrow", 256, 0, 2304);
+    public final IntProperty bowSlot = new IntProperty("bow-slot", 8, 0, 9);
 
     private boolean isValidGameMode() {
         GameType gameType = mc.playerController.getCurrentGameType();
@@ -83,6 +92,7 @@ public class InvManager extends Module {
                 if (!this.inventoryOpen) {
                     this.inventoryOpen = true;
                     this.oDelay = this.openDelay.getValue() + 1;
+                    this.autoArmorTime.reset();
                 }
                 if (this.oDelay <= 0 && this.actionDelay <= 0) {
                     if (this.isEnabled() && this.isValidGameMode()) {
@@ -93,20 +103,28 @@ public class InvManager extends Module {
                             inventoryArmorSlots.set(i, ItemUtil.findArmorInventorySlot(i, false));
                         }
                         int preferredSwordHotbarSlot = this.swordSlot.getValue() - 1;
-                        int equippedSwordSlot = ItemUtil.findSwordInInventorySlot(preferredSwordHotbarSlot, true);
-                        int inventorySwordSlot = ItemUtil.findSwordInInventorySlot(preferredSwordHotbarSlot, false);
+                        int inventorySwordSlot = ItemUtil.findSwordInInventorySlot(preferredSwordHotbarSlot, this.checkDurability.getValue());
+                        if (inventorySwordSlot == -1) inventorySwordSlot = ItemUtil.findSwordInInventorySlot(preferredSwordHotbarSlot, false);
                         int preferredPickaxeHotbarSlot = this.pickaxeSlot.getValue() - 1;
-                        int equippedPickaxeSlot = ItemUtil.findInventorySlot("pickaxe", preferredPickaxeHotbarSlot, true);
-                        int inventoryPickaxeSlot = ItemUtil.findInventorySlot("pickaxe", preferredPickaxeHotbarSlot, false);
+                        int inventoryPickaxeSlot = ItemUtil.findInventorySlot("pickaxe", preferredPickaxeHotbarSlot, this.checkDurability.getValue());
+                        if (inventoryPickaxeSlot == -1) inventoryPickaxeSlot = ItemUtil.findInventorySlot("pickaxe", preferredPickaxeHotbarSlot, false);
                         int preferredShovelHotbarSlot = this.shovelSlot.getValue() - 1;
-                        int equippedShovelSlot = ItemUtil.findInventorySlot("shovel", preferredShovelHotbarSlot, true);
-                        int inventoryShovelSlot = ItemUtil.findInventorySlot("shovel", preferredShovelHotbarSlot, false);
+                        int inventoryShovelSlot = ItemUtil.findInventorySlot("shovel", preferredShovelHotbarSlot, this.checkDurability.getValue());
+                        if (inventoryShovelSlot == -1) inventoryShovelSlot = ItemUtil.findInventorySlot("shovel", preferredShovelHotbarSlot, false);
                         int preferredAxeHotbarSlot = this.axeSlot.getValue() - 1;
-                        int equippedAxeSlot = ItemUtil.findInventorySlot("axe", preferredAxeHotbarSlot, true);
-                        int inventoryAxeSlot = ItemUtil.findInventorySlot("axe", preferredAxeHotbarSlot, false);
+                        int inventoryAxeSlot = ItemUtil.findInventorySlot("axe", preferredAxeHotbarSlot, this.checkDurability.getValue());
+                        if (inventoryAxeSlot == -1) inventoryAxeSlot = ItemUtil.findInventorySlot("axe", preferredAxeHotbarSlot, false);
                         int preferredBlocksHotbarSlot = this.blocksSlot.getValue() - 1;
-                        int inventoryBlocksSlot = ItemUtil.findInventorySlot(preferredBlocksHotbarSlot);
-                        if (this.autoArmor.getValue()) {
+                        int inventoryBlocksSlot = ItemUtil.findInventorySlot(preferredBlocksHotbarSlot, ItemUtil.ItemType.Block);
+                        int preferredProjectileHotbarSlot = this.projectileSlot.getValue() - 1;
+                        int inventoryProjectileSlot = ItemUtil.findInventorySlot(preferredProjectileHotbarSlot, ItemUtil.ItemType.Projectile);
+                        if (inventoryProjectileSlot == -1) inventoryProjectileSlot = ItemUtil.findInventorySlot(preferredProjectileHotbarSlot, ItemUtil.ItemType.FishRod);
+                        int preferredGoldAppleHotbarSlot = this.goldAppleSlot.getValue() - 1;
+                        int inventoryGoldAppleSlot = ItemUtil.findInventorySlot(preferredGoldAppleHotbarSlot, ItemUtil.ItemType.GoldApple);
+                        int preferredBowHotbarSlot = this.bowSlot.getValue() - 1;
+                        int inventoryBowSlot = ItemUtil.findBowInventorySlot(preferredBowHotbarSlot, this.checkDurability.getValue());
+                        if (inventoryBowSlot == -1) inventoryBowSlot = ItemUtil.findBowInventorySlot(preferredBowHotbarSlot, false);
+                        if (this.autoArmor.getValue() && this.autoArmorTime.hasTimeElapsed(this.autoArmorInterval.getValue() * 50L)) {
                             for (int i = 0; i < 4; i++) {
                                 int equippedSlot = equippedArmorSlots.get(i);
                                 int inventorySlot = inventoryArmorSlots.get(i);
@@ -122,6 +140,7 @@ public class InvManager extends Module {
                                         } else {
                                             int armorToEquipSlot = equippedSlot != -1 ? equippedSlot : inventorySlot;
                                             this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(armorToEquipSlot), 0, 1);
+                                            this.autoArmorTime.reset();
                                         }
                                         return;
                                     }
@@ -129,35 +148,31 @@ public class InvManager extends Module {
                             }
                         }
                         LinkedHashSet<Integer> usedHotbarSlots = new LinkedHashSet<>();
-                        if (preferredSwordHotbarSlot >= 0 && preferredSwordHotbarSlot <= 8 && (equippedSwordSlot != -1 || inventorySwordSlot != -1)) {
+                        if (preferredSwordHotbarSlot >= 0 && preferredSwordHotbarSlot <= 8 && inventorySwordSlot != -1) {
                             usedHotbarSlots.add(preferredSwordHotbarSlot);
-                            if (equippedSwordSlot != preferredSwordHotbarSlot && inventorySwordSlot != preferredSwordHotbarSlot) {
-                                int slot = equippedSwordSlot != -1 ? equippedSwordSlot : inventorySwordSlot;
-                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(slot), preferredSwordHotbarSlot, 2);
+                            if (inventorySwordSlot != preferredSwordHotbarSlot) {
+                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(inventorySwordSlot), preferredSwordHotbarSlot, 2);
                                 return;
                             }
                         }
-                        if (preferredPickaxeHotbarSlot >= 0 && preferredPickaxeHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredPickaxeHotbarSlot) && (equippedPickaxeSlot != -1 || inventoryPickaxeSlot != -1)) {
+                        if (preferredPickaxeHotbarSlot >= 0 && preferredPickaxeHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredPickaxeHotbarSlot) && inventoryPickaxeSlot != -1) {
                             usedHotbarSlots.add(preferredPickaxeHotbarSlot);
-                            if (equippedPickaxeSlot != preferredPickaxeHotbarSlot && inventoryPickaxeSlot != preferredPickaxeHotbarSlot) {
-                                int slot = equippedPickaxeSlot != -1 ? equippedPickaxeSlot : inventoryPickaxeSlot;
-                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(slot), preferredPickaxeHotbarSlot, 2);
+                            if (inventoryPickaxeSlot != preferredPickaxeHotbarSlot) {
+                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(inventoryPickaxeSlot), preferredPickaxeHotbarSlot, 2);
                                 return;
                             }
                         }
-                        if (preferredShovelHotbarSlot >= 0 && preferredShovelHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredShovelHotbarSlot) && (equippedShovelSlot != -1 || inventoryShovelSlot != -1)) {
+                        if (preferredShovelHotbarSlot >= 0 && preferredShovelHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredShovelHotbarSlot) && inventoryShovelSlot != -1) {
                             usedHotbarSlots.add(preferredShovelHotbarSlot);
-                            if (equippedShovelSlot != preferredShovelHotbarSlot && inventoryShovelSlot != preferredShovelHotbarSlot) {
-                                int slot = equippedShovelSlot != -1 ? equippedShovelSlot : inventoryShovelSlot;
-                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(slot), preferredShovelHotbarSlot, 2);
+                            if (inventoryShovelSlot != preferredShovelHotbarSlot) {
+                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(inventoryShovelSlot), preferredShovelHotbarSlot, 2);
                                 return;
                             }
                         }
-                        if (preferredAxeHotbarSlot >= 0 && preferredAxeHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredAxeHotbarSlot) && (equippedAxeSlot != -1 || inventoryAxeSlot != -1)) {
+                        if (preferredAxeHotbarSlot >= 0 && preferredAxeHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredAxeHotbarSlot) && inventoryAxeSlot != -1) {
                             usedHotbarSlots.add(preferredAxeHotbarSlot);
-                            if (equippedAxeSlot != preferredAxeHotbarSlot && inventoryAxeSlot != preferredAxeHotbarSlot) {
-                                int slot = equippedAxeSlot != -1 ? equippedAxeSlot : inventoryAxeSlot;
-                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(slot), preferredAxeHotbarSlot, 2);
+                            if (inventoryAxeSlot != preferredAxeHotbarSlot) {
+                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(inventoryAxeSlot), preferredAxeHotbarSlot, 2);
                                 return;
                             }
                         }
@@ -168,29 +183,54 @@ public class InvManager extends Module {
                                 return;
                             }
                         }
+                        if (preferredProjectileHotbarSlot >= 0 && preferredProjectileHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredProjectileHotbarSlot) && inventoryProjectileSlot != -1) {
+                            usedHotbarSlots.add(preferredProjectileHotbarSlot);
+                            if (inventoryProjectileSlot != preferredProjectileHotbarSlot) {
+                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(inventoryProjectileSlot), preferredProjectileHotbarSlot, 2);
+                                return;
+                            }
+                        }
+                        if (preferredGoldAppleHotbarSlot >= 0 && preferredGoldAppleHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredGoldAppleHotbarSlot) && inventoryGoldAppleSlot != -1) {
+                            usedHotbarSlots.add(preferredGoldAppleHotbarSlot);
+                            if (inventoryGoldAppleSlot != preferredGoldAppleHotbarSlot) {
+                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(inventoryGoldAppleSlot), preferredGoldAppleHotbarSlot, 2);
+                                return;
+                            }
+                        }
+                        if (preferredBowHotbarSlot >= 0 && preferredBowHotbarSlot <= 8 && !usedHotbarSlots.contains(preferredBowHotbarSlot) && inventoryBowSlot != -1) {
+                            usedHotbarSlots.add(preferredBowHotbarSlot);
+                            if (inventoryBowSlot != preferredBowHotbarSlot) {
+                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(inventoryBowSlot), preferredBowHotbarSlot, 2);
+                                return;
+                            }
+                        }
                         if (this.dropTrash.getValue()) {
                             int currentBlockCount = this.getStackSize(inventoryBlocksSlot);
+                            int currentProjectileCount = this.getStackSize(inventoryProjectileSlot);
                             for (int i = 0; i < 36; i++) {
                                 if (!equippedArmorSlots.contains(i)
                                         && !inventoryArmorSlots.contains(i)
-                                        && equippedSwordSlot != i
                                         && inventorySwordSlot != i
-                                        && equippedPickaxeSlot != i
                                         && inventoryPickaxeSlot != i
-                                        && equippedShovelSlot != i
                                         && inventoryShovelSlot != i
-                                        && equippedAxeSlot != i
                                         && inventoryAxeSlot != i
-                                        && inventoryBlocksSlot != i) {
+                                        && inventoryBlocksSlot != i
+                                        && inventoryProjectileSlot != i
+                                        && inventoryGoldAppleSlot != i
+                                        && inventoryBowSlot != i) {
                                     ItemStack stack = mc.thePlayer.inventory.getStackInSlot(i);
                                     if (stack != null) {
                                         boolean isBlock = ItemUtil.isBlock(stack);
-                                        if (ItemUtil.isNotSpecialItem(stack) || isBlock && currentBlockCount >= this.blocks.getValue()) {
+                                        boolean isProjectile = ItemUtil.isProjectile(stack);
+                                        if (ItemUtil.isNotSpecialItem(stack) || isBlock && currentBlockCount >= this.blocks.getValue() || isProjectile && currentProjectileCount >= this.projectiles.getValue()) {
                                             this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(i), 1, 4);
                                             return;
                                         }
                                         if (isBlock) {
                                             currentBlockCount += stack.stackSize;
+                                        }
+                                        if (isProjectile) {
+                                            currentProjectileCount += stack.stackSize;
                                         }
                                     }
                                 }

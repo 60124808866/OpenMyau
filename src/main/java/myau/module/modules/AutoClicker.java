@@ -6,13 +6,12 @@ import myau.event.types.Priority;
 import myau.events.LeftClickMouseEvent;
 import myau.events.TickEvent;
 import myau.module.Module;
-import myau.util.ItemUtil;
-import myau.util.KeyBindUtil;
-import myau.util.RandomUtil;
+import myau.util.*;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.FloatProperty;
 import myau.property.properties.IntProperty;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.WorldSettings.GameType;
 
@@ -31,9 +30,12 @@ public class AutoClicker extends Module {
     public final BooleanProperty weaponsOnly = new BooleanProperty("weapons-only", true);
     public final BooleanProperty allowTools = new BooleanProperty("allow-tools", false, this.weaponsOnly::getValue);
     public final BooleanProperty breakBlocks = new BooleanProperty("break-blocks", true);
+    public final FloatProperty range = new FloatProperty("range", 3.0F, 3.0F, 8.0F, this.breakBlocks::getValue);
+    public final FloatProperty hitBoxVertical = new FloatProperty("hit-box-vertical", 0.1F, 0.0F, 1.0F, this.breakBlocks::getValue);
+    public final FloatProperty hitBoxHorizontal = new FloatProperty("hit-box-horizontal", 0.2F, 0.0F, 1.0F, this.breakBlocks::getValue);
 
     private long getNextClickDelay() {
-        return 1000L / RandomUtil.nextLong(this.minCPS.getValue().intValue(), this.maxCPS.getValue().intValue());
+        return 1000L / RandomUtil.nextLong(this.minCPS.getValue(), this.maxCPS.getValue());
     }
 
     private long getBlockHitDelay() {
@@ -48,7 +50,7 @@ public class AutoClicker extends Module {
         if (!this.weaponsOnly.getValue()
                 || ItemUtil.hasRawUnbreakingEnchant()
                 || this.allowTools.getValue() && ItemUtil.isHoldingTool()) {
-            if (this.breakBlocks.getValue() && this.isBreakingBlock()) {
+            if (this.breakBlocks.getValue() && this.isBreakingBlock() && !this.hasValidTarget()) {
                 GameType gameType12 = mc.playerController.getCurrentGameType();
                 return gameType12 != GameType.SURVIVAL && gameType12 != GameType.CREATIVE;
             } else {
@@ -57,6 +59,34 @@ public class AutoClicker extends Module {
         } else {
             return false;
         }
+    }
+
+    private boolean isValidTarget(EntityPlayer entityPlayer) {
+        if (entityPlayer != mc.thePlayer && entityPlayer != mc.thePlayer.ridingEntity) {
+            if (entityPlayer == mc.getRenderViewEntity() || entityPlayer == mc.getRenderViewEntity().ridingEntity) {
+                return false;
+            } else if (entityPlayer.deathTime > 0) {
+                return false;
+            } else {
+                float borderSize = entityPlayer.getCollisionBorderSize();
+                return RotationUtil.rayTrace(entityPlayer.getEntityBoundingBox().expand(
+                        borderSize + this.hitBoxHorizontal.getValue(),
+                        borderSize + this.hitBoxVertical.getValue(),
+                        borderSize + this.hitBoxHorizontal.getValue()
+                ), mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, this.range.getValue()) != null;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private boolean hasValidTarget() {
+        return mc.theWorld
+                .loadedEntityList
+                .stream()
+                .filter(e -> e instanceof EntityPlayer)
+                .map(e -> (EntityPlayer) e)
+                .anyMatch(this::isValidTarget);
     }
 
     public AutoClicker() {

@@ -52,7 +52,7 @@ public class TextComponent implements Component {
 
     public void mouseDown(int x, int y, int button) {
         if (this.isHovered(x, y) && button == 0 && this.module.panelExpand) {
-            GuiInput.prompt(property.getName().replace("-", " "),property.getValue(), property::setValue, ClickGui.getInstance());
+            GuiInput.prompt(property.getName().replace("-", " "), property.getValue(), property::setValue, ClickGui.getInstance());
         }
     }
 

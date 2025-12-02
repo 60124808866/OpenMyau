@@ -3,7 +3,9 @@ package myau.ui.components;
 
 import myau.Myau;
 import myau.module.modules.HUD;
+import myau.ui.ClickGui;
 import myau.ui.Component;
+import myau.ui.callback.GuiInput;
 import myau.ui.dataset.Slider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -21,6 +23,8 @@ public class SliderComponent implements Component {
     private int y;
     private boolean dragging = false;
     private double sliderWidth;
+    private long increment = 0;
+    private long decrement = 0;
 
     public SliderComponent(Slider slider, ModuleComponent parentModule, int offsetY) {
         this.slider = slider;
@@ -40,7 +44,7 @@ public class SliderComponent implements Component {
         Gui.drawRect(sliderStart, this.parentModule.category.getY() + this.offsetY + 11, sliderEnd, this.parentModule.category.getY() + this.offsetY + 15, ((HUD) Myau.moduleManager.modules.get(HUD.class)).getColor(System.currentTimeMillis(), offset.get()).getRGB());
         GL11.glPushMatrix();
         GL11.glScaled(0.5D, 0.5D, 0.5D);
-        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(this.slider.getName() + ": " + this.slider.getValueString(), (float) ((int) ((float) (this.parentModule.category.getX() + 4) * 2.0F)), (float) ((int) ((float) (this.parentModule.category.getY() + this.offsetY + 3) * 2.0F)), -1);
+        Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(this.slider.getName() + ": " + this.slider.getValueColorString(), (float) ((int) ((float) (this.parentModule.category.getX() + 4) * 2.0F)), (float) ((int) ((float) (this.parentModule.category.getY() + this.offsetY + 3) * 2.0F)), -1);
         GL11.glPopMatrix();
     }
 
@@ -79,6 +83,14 @@ public class SliderComponent implements Component {
                 this.slider.setValue(n);
             }
         }
+        if (this.increment != 0 && this.increment < System.currentTimeMillis()) {
+            this.increment = System.currentTimeMillis() + 50;
+            this.slider.stepping(true);
+        }
+        if (this.decrement != 0 && this.decrement < System.currentTimeMillis()) {
+            this.decrement = System.currentTimeMillis() + 50;
+            this.slider.stepping(false);
+        }
     }
 
 
@@ -93,18 +105,35 @@ public class SliderComponent implements Component {
     }
 
     public void mouseDown(int x, int y, int button) {
-        if (this.isLeftHalfHovered(x, y) && button == 0 && this.parentModule.panelExpand) {
-            this.dragging = true;
+        if (this.isTextHovered(x, y) && button == 0 && this.parentModule.panelExpand) {
+            GuiInput.prompt(slider.getName().replace("-", " "), slider.getValueString(), slider::setValueString, ClickGui.getInstance());
+            return;
         }
 
-        if (this.isRightHalfHovered(x, y) && button == 0 && this.parentModule.panelExpand) {
-            this.dragging = true;
+        if (this.isLeftHalfHovered(x, y) && this.parentModule.panelExpand) {
+            if (button == 0) {
+                this.dragging = true;
+            } else if(button == 1 && this.decrement == 0) {
+                this.decrement = System.currentTimeMillis() + 500;
+                this.slider.stepping(false);
+            }
+        }
+
+        if (this.isRightHalfHovered(x, y) && this.parentModule.panelExpand) {
+            if (button == 0) {
+                this.dragging = true;
+            } else if(button == 1 && this.increment == 0) {
+                this.increment = System.currentTimeMillis() + 500;
+                this.slider.stepping(true);
+            }
         }
 
     }
 
     public void mouseReleased(int x, int y, int button) {
         this.dragging = false;
+        this.increment = 0;
+        this.decrement = 0;
     }
 
     @Override
@@ -112,12 +141,16 @@ public class SliderComponent implements Component {
 
     }
 
+    public boolean isTextHovered(int x, int y) {
+        return x > this.x && x < this.x + this.parentModule.category.getWidth() && y > this.y && y < this.y + 8;
+    }
+
     public boolean isLeftHalfHovered(int x, int y) {
-        return x > this.x && x < this.x + this.parentModule.category.getWidth() / 2 + 1 && y > this.y && y < this.y + 16;
+        return x > this.x && x < this.x + this.parentModule.category.getWidth() / 2 + 1 && y > this.y + 8 && y < this.y + 16;
     }
 
     public boolean isRightHalfHovered(int x, int y) {
-        return x > this.x + this.parentModule.category.getWidth() / 2 && x < this.x + this.parentModule.category.getWidth() && y > this.y && y < this.y + 16;
+        return x > this.x + this.parentModule.category.getWidth() / 2 && x < this.x + this.parentModule.category.getWidth() && y > this.y + 8 && y < this.y + 16;
     }
 
 

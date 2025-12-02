@@ -77,7 +77,7 @@ public class RenderUtil {
     }
 
     public static void drawOutlinedString(String text, float x, float y) {
-        String string2 = text.replaceAll("(?i)Â§[\\da-f]", "");
+        String string2 = text.replaceAll("(?i)§[\\da-f]", "");
         RenderUtil.mc.fontRendererObj.drawString(string2, x + 1.0f, y, 0, false);
         RenderUtil.mc.fontRendererObj.drawString(string2, x - 1.0f, y, 0, false);
         RenderUtil.mc.fontRendererObj.drawString(string2, x, y + 1.0f, 0, false);
@@ -282,6 +282,31 @@ public class RenderUtil {
         GL11.glTexCoord2d(1.0, 1.0);
         GL11.glVertex2d(scaledResolution.getScaledWidth(), 0.0);
         GL11.glEnd();
+    }
+
+    public static void fillCircle(double x, double y, double radius, int segments, int color) {
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+
+        RenderUtil.setColor(color);
+
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+
+        GL11.glVertex2d(x, y);
+
+        for (int i = 0; i <= segments; i++) {
+            double angle = i * (Math.PI * 2.0 / segments);
+            double px = x + Math.cos(angle) * radius;
+            double py = y + Math.sin(angle) * radius;
+            GL11.glVertex2d(px, py);
+        }
+
+        GL11.glEnd();
+
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        GlStateManager.resetColor();
     }
 
     public static void drawCircle(double centerX, double centerY, double centerZ, double radius, int segments, int color) {

@@ -32,12 +32,25 @@ public class FloatSlider extends Slider {
     }
 
     @Override
+    public void setValueString(String value) {
+        try {
+            property.setValue(Float.parseFloat(value));
+        } catch (Exception ignore) {
+        }
+    }
+
+    @Override
     public String getName() {
         return property.getName().replace("-", " ");
     }
 
     @Override
     public String getValueString() {
+        return property.getValue().toString();
+    }
+
+    @Override
+    public String getValueColorString() {
         return ChatColors.formatColor(property.formatValue());
     }
 
@@ -49,5 +62,16 @@ public class FloatSlider extends Slider {
     @Override
     public boolean isVisible() {
         return property.isVisible();
+    }
+
+    @Override
+    public void stepping(boolean increment) {
+        if (increment) {
+            if (property.getValue() >= property.getMaximum()) return;
+            property.setValue(Math.round(property.getValue() * 10 + 1) / 10.0F);
+        } else {
+            if (property.getValue() <= property.getMinimum()) return;
+            property.setValue(Math.round(property.getValue() * 10 - 1) / 10.0F);
+        }
     }
 }

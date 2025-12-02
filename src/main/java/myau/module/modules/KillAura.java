@@ -378,11 +378,11 @@ public class KillAura extends Module {
 
     public boolean shouldAutoBlock() {
         if (this.isPlayerBlocking() && this.isBlocking) {
-            return !mc.thePlayer.isInWater() && !mc.thePlayer.isInLava() && (this.autoBlock.getValue() == 3
-                    || this.autoBlock.getValue() == 4
-                    || this.autoBlock.getValue() == 5
-                    || this.autoBlock.getValue() == 6
-                    || this.autoBlock.getValue() == 7);
+            return !mc.thePlayer.isInWater() && !mc.thePlayer.isInLava() && (this.autoBlock.getValue() == 3  // HYPIXEL
+                    || this.autoBlock.getValue() == 4 // BLINK
+                    || this.autoBlock.getValue() == 5 // INTERACT
+                    || this.autoBlock.getValue() == 6 // SWAP
+                    || this.autoBlock.getValue() == 7); // LEGIT
         } else {
             return false;
         }
@@ -420,7 +420,7 @@ public class KillAura extends Module {
                 boolean blocked = false;
                 if (block) {
                     switch (this.autoBlock.getValue()) {
-                        case 0:
+                        case 0: // NONE
                             if (PlayerUtil.isUsingItem()) {
                                 this.isBlocking = true;
                                 if (!this.isPlayerBlocking() && !Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
@@ -435,7 +435,7 @@ public class KillAura extends Module {
                             Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
                             this.fakeBlockState = false;
                             break;
-                        case 1:
+                        case 1: // VANILLA
                             if (this.hasValidTarget()) {
                                 if (!this.isPlayerBlocking() && !Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
                                     swap = true;
@@ -449,7 +449,7 @@ public class KillAura extends Module {
                                 this.fakeBlockState = false;
                             }
                             break;
-                        case 2:
+                        case 2: // SPOOF
                             if (this.hasValidTarget()) {
                                 int item = ((IAccessorPlayerControllerMP) mc.playerController).getCurrentPlayerItem();
                                 if (Myau.playerStateManager.digging
@@ -474,7 +474,7 @@ public class KillAura extends Module {
                                 this.fakeBlockState = false;
                             }
                             break;
-                        case 3:
+                        case 3: // HYPIXEL
                             if (this.hasValidTarget()) {
                                 if (!Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
                                     switch (this.blockTick) {
@@ -514,7 +514,7 @@ public class KillAura extends Module {
                                 this.fakeBlockState = false;
                             }
                             break;
-                        case 4:
+                        case 4: // BLINK
                             if (this.hasValidTarget()) {
                                 if (!Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
                                     switch (this.blockTick) {
@@ -546,7 +546,7 @@ public class KillAura extends Module {
                                 this.fakeBlockState = false;
                             }
                             break;
-                        case 5:
+                        case 5: // INTERACT
                             if (this.hasValidTarget()) {
                                 int item = ((IAccessorPlayerControllerMP) mc.playerController).getCurrentPlayerItem();
                                 if (mc.thePlayer.inventory.currentItem == item && !Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
@@ -581,7 +581,7 @@ public class KillAura extends Module {
                                 this.fakeBlockState = false;
                             }
                             break;
-                        case 6:
+                        case 6: // SWAP
                             if (this.hasValidTarget()) {
                                 int item = ((IAccessorPlayerControllerMP) mc.playerController).getCurrentPlayerItem();
                                 if (mc.thePlayer.inventory.currentItem == item && !Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
@@ -622,7 +622,7 @@ public class KillAura extends Module {
                             this.isBlocking = false;
                             this.fakeBlockState = false;
                             break;
-                        case 7:
+                        case 7: // LEGIT
                             if (this.hasValidTarget()) {
                                 if (!Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
                                     switch (this.blockTick) {
@@ -654,7 +654,7 @@ public class KillAura extends Module {
                                 this.fakeBlockState = false;
                             }
                             break;
-                        case 8:
+                        case 8: // FAKE
                             Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
                             this.isBlocking = false;
                             this.fakeBlockState = this.hasValidTarget();

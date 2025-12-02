@@ -5,9 +5,12 @@ import myau.event.types.EventType;
 import myau.events.TickEvent;
 import myau.mixin.IAccessorMinecraft;
 import myau.module.Module;
+import myau.util.BlockUtil;
 import myau.util.RotationUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.FloatProperty;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockObsidian;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -27,6 +30,8 @@ public class FastPlace extends Module {
     public final FloatProperty delay = new FloatProperty("delay", 1.0F, 1.0F, 3.0F);
     public final BooleanProperty blocksOnly = new BooleanProperty("blocks-only", true);
     public final BooleanProperty placeFix = new BooleanProperty("place-fix", true);
+    public final BooleanProperty skipObsidian = new BooleanProperty("skip-obsidian", true);
+    public final BooleanProperty skipInteractable = new BooleanProperty("skip-interactable", true);
 
     private boolean canPlace() {
         ItemStack stack = mc.thePlayer.getHeldItem();
@@ -36,6 +41,13 @@ public class FastPlace extends Module {
                 return false;
             }
             if (item instanceof ItemBlock) {
+                Block block = ((ItemBlock) item).getBlock();
+                if (skipObsidian.getValue() && block instanceof BlockObsidian) {
+                    return false;
+                }
+                if (skipInteractable.getValue() && BlockUtil.isInteractable(block)) {
+                    return false;
+                }
                 if (!(Boolean) this.placeFix.getValue()) {
                     return true;
                 }

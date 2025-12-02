@@ -1,6 +1,7 @@
 package myau.util;
 
 import com.google.common.collect.Multimap;
+import myau.mixin.IAccessorItemSword;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.Enchantment;
@@ -9,6 +10,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 
 import java.util.ArrayList;
@@ -23,9 +25,6 @@ public class ItemUtil {
             return false;
         }
         Item item = itemStack.getItem();
-        if (item instanceof ItemBlock) {
-            return !ItemUtil.isContainerBlock((ItemBlock) item);
-        }
         if (item instanceof ItemPotion) {
             return ((ItemPotion) item).getEffects(itemStack).stream().map(PotionEffect::getPotionID).noneMatch(specialItems::contains);
         }
@@ -33,6 +32,7 @@ public class ItemUtil {
         if (item instanceof ItemFood) {
             if (item != Items.spider_eye) return false;
         }
+        if (item instanceof ItemMonsterPlacer) return false;
         return item != Items.nether_star;
     }
 
@@ -44,6 +44,16 @@ public class ItemUtil {
         if (item instanceof ItemBlock) {
             return ItemUtil.isContainerBlock((ItemBlock) item);
         }
+        return false;
+    }
+
+    public static boolean isProjectile(ItemStack itemStack) {
+        if (itemStack == null || itemStack.stackSize < 1) {
+            return false;
+        }
+        Item item = itemStack.getItem();
+        if (item instanceof ItemEgg) return true;
+        if (item instanceof ItemSnowball) return true;
         return false;
     }
 
@@ -86,24 +96,60 @@ public class ItemUtil {
         return efficiency;
     }
 
+    public static float getToolEfficiency(ItemStack itemStack, Block block) {
+        float efficiency = 1.0f;
+        if (itemStack != null) {
+            efficiency = itemStack.canHarvestBlock(block) || !(itemStack.getItem() instanceof ItemPickaxe)
+                    ? itemStack.getStrVsBlock(block) : 1.0f;
+            if (itemStack.getItem() instanceof ItemTool) {
+                int enchantLevel;
+                if (efficiency > 1.0f && (enchantLevel = EnchantmentHelper.getEnchantmentLevel(Enchantment.efficiency.effectId, itemStack)) > 0) {
+                    efficiency += (float) (enchantLevel * enchantLevel + 1);
+                }
+            }
+        }
+        return efficiency;
+    }
+
     public static double getArmorProtection(ItemStack itemStack) {
         double protection = 0.0;
         if (itemStack != null) {
             if (itemStack.getItem() instanceof ItemArmor) {
                 protection = 0.0 + (double) ((ItemArmor) itemStack.getItem()).damageReduceAmount;
                 if (itemStack.isItemEnchanted()) {
-                    protection += (double) EnchantmentHelper.getEnchantmentLevel(Enchantment.protection.effectId, itemStack) * 0.25;
+                    protection += (double) EnchantmentHelper.getEnchantmentLevel(Enchantment.protection.effectId, itemStack) * 0.8;
+                    protection += (double) EnchantmentHelper.getEnchantmentLevel(Enchantment.featherFalling.effectId, itemStack) * 0.05;
+                    protection += (double) EnchantmentHelper.getEnchantmentLevel(Enchantment.projectileProtection.effectId, itemStack) * 0.01;
                 }
             }
         }
         return protection;
     }
 
+    public static double getBowAttackBonus(ItemStack itemStack) {
+        double attackBonus = 0.0;
+        if (itemStack != null) {
+            if (itemStack.getItem() instanceof ItemBow) {
+                attackBonus = 2;
+                if (itemStack.isItemEnchanted()) {
+                    int power = EnchantmentHelper.getEnchantmentLevel(Enchantment.power.effectId, itemStack);
+                    if (power > 0) {
+                        attackBonus += (double) (power + 1) * 0.25;
+                    }
+                    attackBonus += (double) EnchantmentHelper.getEnchantmentLevel(Enchantment.flame.effectId, itemStack) * 0.25;
+                    attackBonus += (double) EnchantmentHelper.getEnchantmentLevel(Enchantment.infinity.effectId, itemStack) * 0.05;
+                }
+            }
+        }
+        return attackBonus;
+    }
+
     public static int findSwordInInventorySlot(int startSlot, boolean checkDurability) {
         int bestSlot = -1;
         double bestAttackBonus = 0.0;
+        if (startSlot < 0) return bestSlot;
         for (int i = 0; i < 36; ++i) {
-            int currentSlot = ((startSlot + i) % 36 + 36) % 36;
+            int currentSlot = (startSlot + i) % 36;
             ItemStack itemStack = ItemUtil.mc.thePlayer.inventory.getStackInSlot(currentSlot);
             if (itemStack == null) continue;
             if (!(itemStack.getItem() instanceof ItemSword)) continue;
@@ -122,11 +168,36 @@ public class ItemUtil {
         return bestSlot;
     }
 
+    public static int findBowInventorySlot(int startSlot, boolean checkDurability) {
+        int bestSlot = -1;
+        double bestAttackBonus = 0.0;
+        if (startSlot < 0) return bestSlot;
+        for (int i = 0; i < 36; ++i) {
+            int currentSlot = (startSlot + i) % 36;
+            ItemStack itemStack = ItemUtil.mc.thePlayer.inventory.getStackInSlot(currentSlot);
+            if (itemStack == null) continue;
+            if (!(itemStack.getItem() instanceof ItemBow)) continue;
+            if (checkDurability) {
+                if (itemStack.isItemDamaged()) {
+                    if (itemStack.getMaxDamage() - itemStack.getItemDamage() < 30) {
+                        continue;
+                    }
+                }
+            }
+            double attackBonus = ItemUtil.getBowAttackBonus(itemStack);
+            if (!(attackBonus > bestAttackBonus)) continue;
+            bestSlot = currentSlot;
+            bestAttackBonus = attackBonus;
+        }
+        return bestSlot;
+    }
+
     public static int findInventorySlot(String toolClass, int startSlot, boolean checkDurability) {
         int bestSlot = -1;
         float bestEfficiency = 1.0f;
+        if (startSlot < 0) return bestSlot;
         for (int i = 0; i < 36; ++i) {
-            int currentSlot = ((startSlot + i) % 36 + 36) % 36;
+            int currentSlot = (startSlot + i) % 36;
             ItemStack itemStack = ItemUtil.mc.thePlayer.inventory.getStackInSlot(currentSlot);
             if (itemStack == null) continue;
             if (!(itemStack.getItem() instanceof ItemTool)) continue;
@@ -149,16 +220,36 @@ public class ItemUtil {
     public static int findInventorySlot(int currentSlot, Block block) {
         ItemStack currentItem = ItemUtil.mc.thePlayer.inventory.getStackInSlot(currentSlot);
         int bestSlot = currentSlot;
-        float bestStrength = currentItem != null ? currentItem.getStrVsBlock(block) : 1.0f;
+        float bestStrength = getToolEfficiency(currentItem, block);
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = ItemUtil.mc.thePlayer.inventory.getStackInSlot(i);
             if (itemStack == null) continue;
-            float strength = itemStack.getStrVsBlock(block);
+            float strength = getToolEfficiency(itemStack, block);
             if (!(strength > bestStrength)) continue;
             bestSlot = i;
             bestStrength = strength;
         }
         return bestSlot;
+    }
+
+    public static int findAndurilHotbarSlot(int currentSlot) {
+        for (int i = currentSlot; i < currentSlot + 9; ++i) {
+            ItemStack itemStack = ItemUtil.mc.thePlayer.inventory.getStackInSlot(i % 9);
+            if (itemStack == null) continue;
+
+            if (itemStack.getItem() instanceof ItemSword && itemStack.hasTagCompound()) {
+                IAccessorItemSword itemSword = (IAccessorItemSword) itemStack.getItem();
+                if (itemSword.getMaterial() == Item.ToolMaterial.IRON && itemStack.getTagCompound().hasKey("display", 10)) {
+                    NBTTagList nbttaglist = itemStack.getTagCompound().getCompoundTag("display").getTagList("Lore", 8);
+                    for (int j = 0; j < nbttaglist.tagCount(); ++j) {
+                        if (nbttaglist.getStringTagAt(j).contains("§9Justice")) {
+                            return i % 9;
+                        }
+                    }
+                }
+            }
+        }
+        return -1;
     }
 
     public static int findArmorInventorySlot(int armorType, boolean checkDurability) {
@@ -186,19 +277,31 @@ public class ItemUtil {
         return bestSlot;
     }
 
-    public static int findInventorySlot(int startSlot) {
+    public static int findInventorySlot(int startSlot, ItemType itemType) {
         int bestSlot = -1;
         int maxStackSize = 0;
+        if (startSlot < 0) startSlot = 0;
         for (int i = 0; i < 36; ++i) {
-            int currentSlot = ((startSlot + i) % 36 + 36) % 36;
+            int currentSlot = (startSlot + i) % 36;
             ItemStack itemStack = ItemUtil.mc.thePlayer.inventory.getStackInSlot(currentSlot);
             if (itemStack == null) continue;
-            if (!ItemUtil.isBlock(itemStack)) continue;
+            if (!itemType.contains(itemStack)) continue;
             if (maxStackSize >= itemStack.stackSize) continue;
             bestSlot = currentSlot;
             maxStackSize = itemStack.stackSize;
         }
         return bestSlot;
+    }
+
+    public static int findInventorySlot(ItemType itemType) {
+        int stackSize = 0;
+        for (int i = 0; i < 36; ++i) {
+            ItemStack itemStack = ItemUtil.mc.thePlayer.inventory.getStackInSlot(i);
+            if (itemStack == null) continue;
+            if (!itemType.contains(itemStack)) continue;
+            stackSize += itemStack.stackSize;
+        }
+        return stackSize;
     }
 
     public static boolean hasRawUnbreakingEnchant() {
@@ -301,5 +404,34 @@ public class ItemUtil {
             this.add(21);
             this.add(22);
         }
+    }
+
+    public enum ItemType {
+        Block {
+            public boolean contains(ItemStack itemStack) {
+                return isBlock(itemStack);
+            }
+        },
+        Projectile {
+            public boolean contains(ItemStack itemStack) {
+                return isProjectile(itemStack);
+            }
+        },
+        FishRod {
+            public boolean contains(ItemStack itemStack) {
+                return itemStack.getItem() instanceof ItemFishingRod;
+            }
+        },
+        GoldApple {
+            public boolean contains(ItemStack itemStack) {
+                return itemStack.getItem() instanceof ItemAppleGold;
+            }
+        },
+        Arrow {
+            public boolean contains(ItemStack itemStack) {
+                return itemStack.getItem() == Items.arrow;
+            }
+        };
+        abstract public boolean contains(ItemStack itemStack);
     }
 }

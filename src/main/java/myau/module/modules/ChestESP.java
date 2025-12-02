@@ -10,11 +10,15 @@ import myau.util.RenderUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.ColorProperty;
 import myau.property.properties.PercentProperty;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockChest;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 
 import java.awt.*;
@@ -22,15 +26,13 @@ import java.util.stream.Collectors;
 
 public class ChestESP extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ColorProperty color;
-    public final PercentProperty opacity;
-    public final BooleanProperty tracers;
+    public final ColorProperty chest = new ColorProperty("chest", new Color(255, 170, 0).getRGB());
+    public final ColorProperty trappedChest = new ColorProperty("trappedChest", new Color(255, 43, 0).getRGB());
+    public final ColorProperty enderChest = new ColorProperty("enderChest", new Color(26, 17, 0).getRGB());
+    public final BooleanProperty tracers = new BooleanProperty("tracers", false);
 
     public ChestESP() {
         super("ChestESP", false);
-        this.color = new ColorProperty("color", new Color(255, 170, 0).getRGB());
-        this.opacity = new PercentProperty("opacity", 100);
-        this.tracers = new BooleanProperty("tracers", false);
     }
 
     @EventTarget
@@ -38,22 +40,69 @@ public class ChestESP extends Module {
         if (this.isEnabled()) {
             RenderUtil.enableRenderState();
             for (TileEntity chest : mc.theWorld.loadedTileEntityList.stream().filter(tileEntity -> tileEntity instanceof TileEntityChest || tileEntity instanceof TileEntityEnderChest).collect(Collectors.toList())) {
+                Block block = mc.theWorld.getBlockState(chest.getPos()).getBlock();
+                double minX, minZ, maxX, maxZ;
+                Color color;
+                minX = minZ = 0.0625;
+                maxX = maxZ = 0.9375;
+                if (block instanceof BlockChest) {
+                    if (block.canProvidePower()) {
+                        color = new Color(this.trappedChest.getValue(), true);
+                    } else {
+                        color = new Color(this.chest.getValue(), true);
+                    }
+                    EnumFacing facing = mc.theWorld.getBlockState(chest.getPos()).getValue(BlockChest.FACING);
+                    switch (facing) {
+                        case NORTH:
+                            if (mc.theWorld.getBlockState(chest.getPos().east()).getBlock() == block) {
+                                continue;
+                            } else if (mc.theWorld.getBlockState(chest.getPos().west()).getBlock() == block) {
+                                minX -= 1;
+                            }
+                            break;
+                        case SOUTH:
+                            if (mc.theWorld.getBlockState(chest.getPos().west()).getBlock() == block) {
+                                continue;
+                            } else if (mc.theWorld.getBlockState(chest.getPos().east()).getBlock() == block) {
+                                maxX += 1;
+                            }
+                            break;
+                        case WEST:
+                            if (mc.theWorld.getBlockState(chest.getPos().north()).getBlock() == block) {
+                                continue;
+                            } else if (mc.theWorld.getBlockState(chest.getPos().south()).getBlock() == block) {
+                                maxZ += 1;
+                            }
+                            break;
+                        case EAST:
+                            if (mc.theWorld.getBlockState(chest.getPos().south()).getBlock() == block) {
+                                continue;
+                            } else if (mc.theWorld.getBlockState(chest.getPos().north()).getBlock() == block) {
+                                minZ -= 1;
+                            }
+                            break;
+                        default:
+                            continue;
+                    }
+                } else {
+                    color = new Color(this.enderChest.getValue(), true);
+                }
+                if (color.getAlpha() == 0) continue;
                 AxisAlignedBB aabb = new AxisAlignedBB(
-                        (double) chest.getPos().getX() + 0.0625,
+                        (double) chest.getPos().getX() + minX,
                         (double) chest.getPos().getY() + 0.0,
-                        (double) chest.getPos().getZ() + 0.0625,
-                        (double) chest.getPos().getX() + 0.9375,
+                        (double) chest.getPos().getZ() + minZ,
+                        (double) chest.getPos().getX() + maxX,
                         (double) chest.getPos().getY() + 0.875,
-                        (double) chest.getPos().getZ() + 0.9375
+                        (double) chest.getPos().getZ() + maxZ
                 )
                         .offset(
                                 -((IAccessorRenderManager) mc.getRenderManager()).getRenderPosX(),
                                 -((IAccessorRenderManager) mc.getRenderManager()).getRenderPosY(),
                                 -((IAccessorRenderManager) mc.getRenderManager()).getRenderPosZ()
                         );
-                Color color = new Color(this.color.getValue());
                 RenderUtil.drawBoundingBox(
-                        aabb, color.getRed(), color.getGreen(), color.getBlue(), (int) ((float) this.opacity.getValue() / 100.0F * 255.0F), 1.5F
+                        aabb, color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(), 1.5F
                 );
                 if (this.tracers.getValue()) {
                     Vec3 vec;

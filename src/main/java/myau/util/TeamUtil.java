@@ -45,7 +45,7 @@ public class TeamUtil {
     }
 
     public static Color getTeamColor(EntityPlayer player, float alpha) {
-        int colorCode = 0;
+        int colorCode = 0xFFFFFF;
         ScorePlayerTeam playerTeam = (ScorePlayerTeam) player.getTeam();
         if (playerTeam != null) {
             String colorPrefix = FontRenderer.getFormatFromString(playerTeam.getColorPrefix());
@@ -53,7 +53,7 @@ public class TeamUtil {
                 colorCode = TeamUtil.mc.fontRendererObj.getColorCode(colorPrefix.charAt(1));
             }
         }
-        return new Color((float) (colorCode >> 16 & 0xFF) / 255.0f, (float) (colorCode >> 8 & 0xFF) / 255.0f, (float) (colorCode & 0xFF) / 255.0f, alpha);
+        return new Color(colorCode & 0xFFFFFF | (int)(alpha * 255) << 24, true);
     }
 
     public static boolean isBot(EntityPlayer player) {

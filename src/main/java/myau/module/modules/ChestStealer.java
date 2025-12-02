@@ -5,6 +5,7 @@ import myau.event.EventTarget;
 import myau.event.types.EventType;
 import myau.events.UpdateEvent;
 import myau.events.WindowClickEvent;
+import myau.mixin.IAccessorItemSword;
 import myau.module.Module;
 import myau.util.ChatUtil;
 import myau.util.ItemUtil;
@@ -13,6 +14,8 @@ import myau.property.properties.IntProperty;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
@@ -32,10 +35,49 @@ public class ChestStealer extends Module {
     public final BooleanProperty autoClose = new BooleanProperty("auto-close", false);
     public final BooleanProperty nameCheck = new BooleanProperty("name-check", true);
     public final BooleanProperty skipTrash = new BooleanProperty("skip-trash", true);
+    public final BooleanProperty moreArmor = new BooleanProperty("more-armor", false);
+    public final BooleanProperty moreSword = new BooleanProperty("more-sword", false);
 
     private boolean isValidGameMode() {
         GameType gameType = mc.playerController.getCurrentGameType();
         return gameType == GameType.SURVIVAL || gameType == GameType.ADVENTURE;
+    }
+
+    private boolean isMoreArmor(ItemStack itemStack) {
+        if (itemStack == null) return false;
+        if (!this.moreArmor.getValue()) return false;
+        if (! (itemStack.getItem() instanceof ItemArmor)) return false;
+        ItemArmor.ArmorMaterial armorMaterial = ((ItemArmor) itemStack.getItem()).getArmorMaterial();
+        if (armorMaterial == ItemArmor.ArmorMaterial.DIAMOND) return true;
+        return armorMaterial == ItemArmor.ArmorMaterial.IRON && itemStack.isItemEnchanted();
+    }
+
+    private boolean isMoreSword(ItemStack itemStack) {
+        if (itemStack == null) return false;
+        if (!this.moreSword.getValue()) return false;
+        if (! (itemStack.getItem() instanceof ItemSword)) return false;
+        Item.ToolMaterial swordMaterial = ((IAccessorItemSword) itemStack.getItem()).getMaterial();
+        if (swordMaterial == Item.ToolMaterial.EMERALD) return true;
+        if (EnchantmentHelper.getEnchantmentLevel(Enchantment.fireAspect.effectId, itemStack) != 0) return true;
+        return swordMaterial == Item.ToolMaterial.IRON && itemStack.isItemEnchanted();
+    }
+
+    private boolean isInvManagerRequire(ItemStack itemStack) {
+        if (itemStack == null) return false;
+        InvManager invManager = (InvManager) Myau.moduleManager.modules.get(InvManager.class);
+        if (ItemUtil.ItemType.Block.contains(itemStack)) {
+            return !invManager.isEnabled() || ItemUtil.findInventorySlot(ItemUtil.ItemType.Block) < invManager.blocks.getValue();
+        }
+        if (ItemUtil.ItemType.Projectile.contains(itemStack)) {
+            return !invManager.isEnabled() || ItemUtil.findInventorySlot(ItemUtil.ItemType.Projectile) < invManager.projectiles.getValue();
+        }
+        if (ItemUtil.ItemType.FishRod.contains(itemStack)) {
+            return ItemUtil.findInventorySlot(ItemUtil.ItemType.Projectile) == 0;
+        }
+        if (ItemUtil.ItemType.Arrow.contains(itemStack)) {
+            return !invManager.isEnabled() || ItemUtil.findInventorySlot(ItemUtil.ItemType.Arrow) < invManager.arrow.getValue();
+        }
+        return false;
     }
 
     private void shiftClick(int windowId, int slotId) {
@@ -96,6 +138,8 @@ public class ChestStealer extends Module {
                                     float bestShovelEfficiency = 1.0F;
                                     int bestAxeSlot = -1;
                                     float bestAxeEfficiency = 1.0F;
+                                    int bestBow = -1;
+                                    double bestBowDamage = 0.0;
                                     for (int i = 0; i < inventory.getSizeInventory(); i++) {
                                         if (container.getSlot(i).getHasStack()) {
                                             ItemStack stack = container.getSlot(i).getStack();
@@ -130,6 +174,12 @@ public class ChestStealer extends Module {
                                                 if (bestAxeSlot == -1 || efficiency > bestAxeEfficiency) {
                                                     bestAxeSlot = i;
                                                     bestAxeEfficiency = efficiency;
+                                                }
+                                            } else if (item instanceof ItemBow) {
+                                                double damage = ItemUtil.getBowAttackBonus(stack);
+                                                if (bestBow == -1 || damage > bestBowDamage) {
+                                                    bestBow = i;
+                                                    bestBowDamage = damage;
                                                 }
                                             }
                                         }
@@ -168,11 +218,17 @@ public class ChestStealer extends Module {
                                         this.shiftClick(container.windowId, bestAxeSlot);
                                         return;
                                     }
+                                    int bowSlot = ItemUtil.findBowInventorySlot(0, true);
+                                    double bowDamage = bowSlot != -1 ? ItemUtil.getBowAttackBonus(mc.thePlayer.inventory.getStackInSlot(bowSlot)) : 0.0;
+                                    if (bestBowDamage > bowDamage) {
+                                        this.shiftClick(container.windowId, bestBow);
+                                        return;
+                                    }
                                 }
                                 for (int i = 0; i < inventory.getSizeInventory(); i++) {
                                     if (container.getSlot(i).getHasStack()) {
                                         ItemStack stack = container.getSlot(i).getStack();
-                                        if (!(Boolean) this.skipTrash.getValue() || !ItemUtil.isNotSpecialItem(stack)) {
+                                        if (!this.skipTrash.getValue() || !ItemUtil.isNotSpecialItem(stack) || isMoreArmor(stack) || isMoreSword(stack) || isInvManagerRequire(stack)) {
                                             this.shiftClick(container.windowId, i);
                                             return;
                                         }
