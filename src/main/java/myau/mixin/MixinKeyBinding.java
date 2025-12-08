@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SideOnly(Side.CLIENT)
-@Mixin({KeyBinding.class})
+@Mixin(value = {KeyBinding.class}, priority = 9999)
 public abstract class MixinKeyBinding {
     @Shadow
     private String keyDescription;

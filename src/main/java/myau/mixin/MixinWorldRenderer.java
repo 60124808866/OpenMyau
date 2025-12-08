@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import java.nio.IntBuffer;
 
 @SideOnly(Side.CLIENT)
-@Mixin({WorldRenderer.class})
+@Mixin(value = {WorldRenderer.class}, priority = 9999)
 public abstract class MixinWorldRenderer {
     @Redirect(
             method = {"putColorMultiplier"},

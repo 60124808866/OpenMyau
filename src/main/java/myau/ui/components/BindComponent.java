@@ -5,8 +5,10 @@ import myau.module.modules.GuiModule;
 import myau.module.modules.HUD;
 import myau.ui.Component;
 import myau.ui.dataset.BindStage;
+import myau.util.KeyBindUtil;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,7 +30,8 @@ public class BindComponent implements Component {
     public void draw(AtomicInteger offset) {
         GL11.glPushMatrix();
         GL11.glScaled(0.5D, 0.5D, 0.5D);
-        this.renderText(this.isBinding ? BindStage.binding : BindStage.bind + ": " + Keyboard.getKeyName(this.parentModule.mod.getKey()), ((HUD) Myau.moduleManager.modules.get(HUD.class)).getColor(System.currentTimeMillis(), offset.get()).getRGB());
+        String displayText = this.isBinding ? BindStage.binding : BindStage.bind + ": " + KeyBindUtil.getKeyName(this.parentModule.mod.getKey());
+        this.renderText(displayText, ((HUD) Myau.moduleManager.modules.get(HUD.class)).getColor(System.currentTimeMillis(), offset.get()).getRGB());
         GL11.glPopMatrix();
     }
 
@@ -42,8 +45,17 @@ public class BindComponent implements Component {
     public void mouseDown(int x, int y, int button) {
         if (this.isHovered(x, y) && button == 0 && this.parentModule.panelExpand) {
             this.isBinding = !this.isBinding;
+        } else if (this.isBinding && this.parentModule.panelExpand) {
+            int keyIndex = button - 100;
+            
+            if (button == 0) {
+                this.isBinding = false;
+                return;
+            }
+            
+            this.parentModule.mod.setKey(keyIndex);
+            this.isBinding = false;
         }
-
     }
 
     @Override
@@ -54,7 +66,12 @@ public class BindComponent implements Component {
     @Override
     public void keyTyped(char chatTyped, int keyCode) {
         if (this.isBinding) {
-            if (keyCode == 11) {
+            if (keyCode == 1) {
+                this.isBinding = false;
+                return;
+            }
+            
+            if (keyCode == 11) { 
                 if (this.parentModule.mod instanceof GuiModule) {
                     this.parentModule.mod.setKey(54);
                 } else {

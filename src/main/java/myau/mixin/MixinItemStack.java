@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SideOnly(Side.CLIENT)
-@Mixin({ItemStack.class})
+@Mixin(value = {ItemStack.class}, priority = 9999)
 public abstract class MixinItemStack {
     @Inject(
             method = {"hasEffect"},

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @SideOnly(Side.CLIENT)
-@Mixin({FontRenderer.class})
+@Mixin(value = {FontRenderer.class}, priority = 9999)
 public abstract class MixinFontRenderer {
     @ModifyVariable(
             method = {"renderString"},

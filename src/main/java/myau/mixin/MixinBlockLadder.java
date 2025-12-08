@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SideOnly(Side.CLIENT)
-@Mixin({BlockLadder.class})
+@Mixin(value = {BlockLadder.class}, priority = 9999)
 public abstract class MixinBlockLadder {
     @Inject(
             method = {"getBlockLayer"},

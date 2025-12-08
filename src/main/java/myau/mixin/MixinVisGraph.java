@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SideOnly(Side.CLIENT)
-@Mixin({VisGraph.class})
+@Mixin(value = {VisGraph.class}, priority = 9999)
 public abstract class MixinVisGraph {
     @Inject(
             method = {"func_178606_a"},

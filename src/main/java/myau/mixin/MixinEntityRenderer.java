@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)
-@Mixin({EntityRenderer.class})
+@Mixin(value = {EntityRenderer.class}, priority = 9999)
 public abstract class MixinEntityRenderer {
     @Unique
     private Box<Integer> slot = null;

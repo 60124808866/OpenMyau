@@ -53,7 +53,7 @@ public class BindCommand extends Command {
                 keyIndex = Keyboard.getKeyIndex(keyInput);
 
                 if (keyIndex == 0) {
-                    int buttonIndex = Mouse.getButtonIndex(keyInput);
+                    int buttonIndex = getMouseButtonIndex(keyInput);
                     if (buttonIndex != -1) {
                         keyIndex = buttonIndex - 100;
                     }
@@ -90,6 +90,59 @@ public class BindCommand extends Command {
                     );
                 }
             }
+        }
+    }
+
+    private int getMouseButtonIndex(String buttonName) {
+        // Handle numbered format (MOUSE0, MOUSE1, etc.)
+        if (buttonName.startsWith("MOUSE")) {
+            try {
+                String numStr = buttonName.substring(5);
+                int buttonNum = Integer.parseInt(numStr);
+                if (buttonNum >= 0 && buttonNum < Mouse.getButtonCount()) {
+                    return buttonNum;
+                }
+            } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+            }
+        }
+
+        int buttonIndex = Mouse.getButtonIndex(buttonName);
+        if (buttonIndex != -1) {
+            return buttonIndex;
+        }
+
+        switch (buttonName) {
+            case "LBUTTON":
+            case "LMB":
+            case "LEFTCLICK":
+                return 0;
+            case "RBUTTON":
+            case "RMB":
+            case "RIGHTCLICK":
+                return 1;
+            case "MBUTTON":
+            case "MMB":
+            case "MIDDLECLICK":
+            case "SCROLLCLICK":
+                return 2;
+            case "MOUSE3":
+            case "XBUTTON1":
+            case "SIDEBUTTON1":
+            case "BOTTOMSIDE":
+                return 3;
+            case "MOUSE4":
+            case "XBUTTON2":
+            case "SIDEBUTTON2":
+            case "TOPSIDE":
+                return 4;
+            case "MOUSE5":
+                return 5;
+            case "MOUSE6":
+                return 6;
+            case "MOUSE7":
+                return 7;
+            default:
+                return -1;
         }
     }
 }

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @SideOnly(Side.CLIENT)
-@Mixin({EntityPlayer.class})
+@Mixin(value = {EntityPlayer.class}, priority = 9999)
 public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
     @ModifyConstant(
             method = {"attackTargetEntityWithCurrentItem"},

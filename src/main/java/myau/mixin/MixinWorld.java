@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @SideOnly(Side.CLIENT)
-@Mixin({World.class})
+@Mixin(value = {World.class}, priority = 9999)
 public abstract class MixinWorld {
     @Redirect(
             method = {"handleMaterialAcceleration"},

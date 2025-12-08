@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @SideOnly(Side.CLIENT)
 @Mixin(
         value = {RendererLivingEntity.class},
-        priority = 991
+        priority = 9991
 )
 public abstract class MixinRendererLivingEntity<T extends EntityLivingBase> extends Render<T> {
     protected MixinRendererLivingEntity(RenderManager renderManager) {

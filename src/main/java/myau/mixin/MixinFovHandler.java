@@ -14,9 +14,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @SideOnly(Side.CLIENT)
 @Pseudo
-@Mixin(
-        targets = {"club.sk1er.patcher.util.fov.FovHandler"}
-)
+@Mixin(targets = {"club.sk1er.patcher.util.fov.FovHandler"}, priority = 9999)
 public abstract class MixinFovHandler {
     @Redirect(
             method = {"fovChange"},

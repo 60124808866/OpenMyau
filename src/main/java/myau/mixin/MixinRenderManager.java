@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SideOnly(Side.CLIENT)
-@Mixin({RenderManager.class})
+@Mixin(value = {RenderManager.class}, priority = 9999)
 public abstract class MixinRenderManager {
     @Unique
     private float _prevRenderYawOffset;

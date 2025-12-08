@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SideOnly(Side.CLIENT)
-@Mixin({BlockRendererDispatcher.class})
+@Mixin(value = {BlockRendererDispatcher.class}, priority = 9999)
 public abstract class MixinBlockRendererDispatcher {
     @Inject(
             method = {"renderBlock"},

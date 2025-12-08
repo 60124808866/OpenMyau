@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @SideOnly(Side.CLIENT)
-@Mixin({EntityLivingBase.class})
+@Mixin(value = {EntityLivingBase.class}, priority = 9999)
 public abstract class MixinEntityLivingBase extends MixinEntity {
     @ModifyVariable(
             method = {"jump"},
