@@ -8,12 +8,9 @@ import myau.event.types.EventType;
 import myau.events.*;
 import myau.mixin.IAccessorEntity;
 import myau.module.Module;
-import myau.property.properties.BooleanProperty;
-import myau.property.properties.IntProperty;
-import myau.property.properties.ModeProperty;
-import myau.property.properties.PercentProperty;
 import myau.util.ChatUtil;
 import myau.util.MoveUtil;
+import myau.property.properties.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
@@ -35,7 +32,10 @@ public class Velocity extends Module {
     private boolean shouldJump = false;
     private int jumpCooldown = 0;
 
-    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"VANILLA", "JUMP", "DELAY", "REVERSE", "LEGIT_TEST"});
+    // ⭐ 新增 Fire Charge 禁用 Jump 计时器（tick）
+    private int fireChargeDisableTimer = 0;
+
+    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"VANILLA", "JUMP", "DELAY", "REVERSE", "LEGITTest"});
     public final IntProperty delayTicks = new IntProperty("delay-ticks", 3, 1, 20, () -> this.mode.getValue() == 2);
     public final PercentProperty delayChance = new PercentProperty("delay-chance", 100, () -> this.mode.getValue() == 2);
     public final PercentProperty chance = new PercentProperty("chance", 100);
@@ -45,6 +45,10 @@ public class Velocity extends Module {
     public final PercentProperty explosionVertical = new PercentProperty("explosions-vertical", 100);
     public final BooleanProperty fakeCheck = new BooleanProperty("fake-check", true);
     public final BooleanProperty debugLog = new BooleanProperty("debug-log", false);
+
+    // ⭐ 新增可配置 Fire Charge 禁用 Jump 秒数（1～10秒）
+    public final IntProperty fireChargeDisableSeconds =
+            new IntProperty("firecharge-disable-seconds", 3, 1, 10);
 
     private boolean isInLiquidOrWeb() {
         return mc.thePlayer.isInWater() || mc.thePlayer.isInLava() || ((IAccessorEntity) mc.thePlayer).getIsInWeb();
@@ -83,8 +87,13 @@ public class Velocity extends Module {
             } else {
                 this.chanceCounter = this.chanceCounter % 100 + this.chance.getValue();
                 if (this.chanceCounter >= 100) {
-                    this.jumpFlag = (this.mode.getValue() == 1 || this.mode.getValue() == 2) && event.getY() > 0.0;
+                    this.jumpFlag =
+                            (this.mode.getValue() == 1 || this.mode.getValue() == 2)
+                                    && event.getY() > 0.0
+                                    && fireChargeDisableTimer <= 0;   // ⭐ 禁用时间内不触发 jump
+
                     this.delayActive = this.mode.getValue() == 3;
+
                     if (this.horizontal.getValue() > 0) {
                         event.setX(event.getX() * (double) this.horizontal.getValue() / 100.0);
                         event.setZ(event.getZ() * (double) this.horizontal.getValue() / 100.0);
@@ -105,6 +114,16 @@ public class Velocity extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         if (event.getType() == EventType.POST) {
+
+            // ⭐ Fire Charge 禁用 Jump 计时器自减
+            if (fireChargeDisableTimer > 0) fireChargeDisableTimer--;
+
+            // ⭐ 如果正在拿 Fire Charge → 重置禁用秒数
+            if (mc.thePlayer.getHeldItem() != null &&
+                    mc.thePlayer.getHeldItem().getItem() == net.minecraft.init.Items.fire_charge) {
+                fireChargeDisableTimer = fireChargeDisableSeconds.getValue() * 20; // 秒 → tick
+            }
+
             if (this.reverseFlag
                     && (
                     this.canDelay()
@@ -148,7 +167,16 @@ public class Velocity extends Module {
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (this.jumpFlag) {
             this.jumpFlag = false;
-            if (mc.thePlayer.onGround && mc.thePlayer.isSprinting() && !mc.thePlayer.isPotionActive(Potion.jump) && !this.isInLiquidOrWeb()) {
+
+            boolean holdingFireCharge = mc.thePlayer.getHeldItem() != null
+                    && mc.thePlayer.getHeldItem().getItem() == net.minecraft.init.Items.fire_charge;
+
+            if (!holdingFireCharge
+                    && fireChargeDisableTimer <= 0  // ⭐ 禁用期间不跳
+                    && mc.thePlayer.onGround
+                    && mc.thePlayer.isSprinting()
+                    && !mc.thePlayer.isPotionActive(Potion.jump)
+                    && !this.isInLiquidOrWeb()) {
                 mc.thePlayer.movementInput.jump = true;
             }
         }
@@ -233,6 +261,7 @@ public class Velocity extends Module {
         this.allowNext = true;
         this.shouldJump = false;
         this.jumpCooldown = 0;
+        this.fireChargeDisableTimer = 0; // ⭐ 重置
     }
 
     @Override
