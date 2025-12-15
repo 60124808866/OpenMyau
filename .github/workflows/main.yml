@@ -1,0 +1,52 @@
+name: Java CI with Gradle and Release
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Prepare file name
+        run: echo "BUILD_TIME=$(date -u +'%m%d%Y%H%M')" >> $GITHUB_ENV
+
+      - name: Rename JAR file
+        run: |
+          original_jar=$(find build/libs -name "*.jar" -type f)
+          new_jar_name="${{ env.BUILD_TIME }}.jar"
+          echo "Renaming '$original_jar' to '$new_jar_name'"
+          mv "$original_jar" "build/libs/$new_jar_name"
+          echo "NEW_JAR_NAME=$new_jar_name" >> $GITHUB_ENV
+      - name: Create a New Release for Each Build
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/libs/${{ env.NEW_JAR_NAME }}
+          # Use the unique build time for the tag name
+          tag_name: ${{ env.BUILD_TIME }}
+          # Also use the build time for the release title for clarity
+          name: Build ${{ env.BUILD_TIME }}
+          body: |
+            Latest version built by GitHub Actions.
+            Name: `${{ env.NEW_JAR_NAME }}`
+          # This ensures the new release is marked as a full, formal release
+          prerelease: false
