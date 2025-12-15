@@ -66,6 +66,7 @@ public class Myau {
         moduleManager.modules.put(AntiObfuscate.class, new AntiObfuscate());
         moduleManager.modules.put(AntiVoid.class, new AntiVoid());
         moduleManager.modules.put(AutoClicker.class, new AutoClicker());
+        moduleManager.modules.put(AutoMiner.class, new AutoMiner());
         moduleManager.modules.put(AutoAnduril.class, new AutoAnduril());
         moduleManager.modules.put(AutoHeal.class, new AutoHeal());
         moduleManager.modules.put(AutoTool.class, new AutoTool());
