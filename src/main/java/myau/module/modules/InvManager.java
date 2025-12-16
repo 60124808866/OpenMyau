@@ -222,15 +222,15 @@ public class InvManager extends Module {
                                     if (stack != null) {
                                         boolean isBlock = ItemUtil.isBlock(stack);
                                         boolean isProjectile = ItemUtil.isProjectile(stack);
-                                        if (ItemUtil.isNotSpecialItem(stack) || isBlock && currentBlockCount >= this.blocks.getValue() || isProjectile && currentProjectileCount >= this.projectiles.getValue()) {
-                                            this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(i), 1, 4);
-                                            return;
-                                        }
                                         if (isBlock) {
                                             currentBlockCount += stack.stackSize;
                                         }
                                         if (isProjectile) {
                                             currentProjectileCount += stack.stackSize;
+                                        }
+                                        if (ItemUtil.isNotSpecialItem(stack) &&( isBlock && currentBlockCount >= this.blocks.getValue() || isProjectile && currentProjectileCount >= this.projectiles.getValue())) {
+                                            this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(i), 1, 4);
+                                            return;
                                         }
                                     }
                                 }
