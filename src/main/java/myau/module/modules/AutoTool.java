@@ -1,6 +1,5 @@
 package myau.module.modules;
 
-import myau.Myau;
 import myau.event.EventTarget;
 import myau.event.types.EventType;
 import myau.events.TickEvent;
@@ -9,7 +8,6 @@ import myau.util.ItemUtil;
 import myau.util.KeyBindUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.IntProperty;
-import myau.util.TeamUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 
@@ -26,12 +24,6 @@ public class AutoTool extends Module {
         super("AutoTool", false);
     }
 
-    public boolean isKillAura() {
-        KillAura killAura = (KillAura) Myau.moduleManager.modules.get(KillAura.class);
-        if (!killAura.isEnabled()) return false;
-        return TeamUtil.isEntityLoaded(killAura.getTarget()) && killAura.isAttackAllowed();
-    }
-
     @EventTarget
     public void onTick(TickEvent event) {
         if (this.isEnabled() && event.getType() == EventType.PRE) {
@@ -42,8 +34,7 @@ public class AutoTool extends Module {
             if (mc.objectMouseOver != null
                     && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK
                     && mc.gameSettings.keyBindAttack.isKeyDown()
-                    && !mc.thePlayer.isUsingItem()
-                    && !isKillAura()) {
+                    && !mc.thePlayer.isUsingItem()) {
                 if (this.tickDelayCounter >= this.switchDelay.getValue()
                         && (!(Boolean) this.sneakOnly.getValue() || KeyBindUtil.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()))) {
                     int slot = ItemUtil.findInventorySlot(
