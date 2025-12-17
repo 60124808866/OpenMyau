@@ -15,7 +15,6 @@ import myau.util.TeamUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.PercentProperty;
 import myau.property.properties.ModeProperty;
-import myau.property.properties.FloatProperty;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -25,21 +24,22 @@ import net.minecraft.util.BlockPos;
 public class NoSlow extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
     private int lastSlot = -1;
-    
-    // 现有属性
+
+    // === 剑模式 ===
     public final ModeProperty swordMode = new ModeProperty("sword-mode", 1, new String[]{"NONE", "VANILLA"});
     public final PercentProperty swordMotion = new PercentProperty("sword-motion", 100, () -> this.swordMode.getValue() != 0);
     public final BooleanProperty swordSprint = new BooleanProperty("sword-sprint", true, () -> this.swordMode.getValue() != 0);
     public final BooleanProperty botCheck = new BooleanProperty("bot-check", true);
-    
-    // >>> 新增属性: 剑模式范围检测
-    public final BooleanProperty rangeCheck = new BooleanProperty("sword-range-check", false, () -> this.swordMode.getValue() != 0);
-    public final FloatProperty triggerRange = new FloatProperty("trigger-range", 6.0F, 3.0F, 10.0F, () -> this.rangeCheck.getValue());
-    // <<< 新增属性
-    
+
+    // ★ 保留的配置（但不再检测范围）
+    public final BooleanProperty rangeCheck = new BooleanProperty("sword-range-check", false);
+
+    // === 食物模式 ===
     public final ModeProperty foodMode = new ModeProperty("food-mode", 0, new String[]{"NONE", "VANILLA", "FLOAT"});
     public final PercentProperty foodMotion = new PercentProperty("food-motion", 100, () -> this.foodMode.getValue() != 0);
     public final BooleanProperty foodSprint = new BooleanProperty("food-sprint", true, () -> this.foodMode.getValue() != 0);
+
+    // === 弓模式 ===
     public final ModeProperty bowMode = new ModeProperty("bow-mode", 0, new String[]{"NONE", "VANILLA", "FLOAT"});
     public final PercentProperty bowMotion = new PercentProperty("bow-motion", 100, () -> this.bowMode.getValue() != 0);
     public final BooleanProperty bowSprint = new BooleanProperty("bow-sprint", true, () -> this.bowMode.getValue() != 0);
@@ -48,6 +48,9 @@ public class NoSlow extends Module {
         super("NoSlow", false);
     }
 
+    // ========================================================
+    //               判断模块是否激活
+    // ========================================================
     public boolean isSwordActive() {
         return this.swordMode.getValue() != 0 && ItemUtil.isHoldingSword();
     }
@@ -66,95 +69,81 @@ public class NoSlow extends Module {
     }
 
     public boolean isAnyActive() {
-        return mc.thePlayer.isUsingItem() && (this.isSwordActive() || this.isFoodActive() || this.isBowActive());
+        return mc.thePlayer.isUsingItem() && (isSwordActive() || isFoodActive() || isBowActive());
     }
 
     public boolean canSprint() {
-        return this.isSwordActive() && this.swordSprint.getValue()
-                || this.isFoodActive() && this.foodSprint.getValue()
-                || this.isBowActive() && this.bowSprint.getValue();
+        return isSwordActive() && swordSprint.getValue()
+                || isFoodActive() && foodSprint.getValue()
+                || isBowActive() && bowSprint.getValue();
     }
 
     public int getMotionMultiplier() {
-        if (ItemUtil.isHoldingSword()) {
-            return this.swordMotion.getValue();
-        } else if (ItemUtil.isEating()) {
-            return this.foodMotion.getValue();
-        } else {
-            return ItemUtil.isUsingBow() ? this.bowMotion.getValue() : 100;
-        }
+        if (ItemUtil.isHoldingSword())
+            return swordMotion.getValue();
+        else if (ItemUtil.isEating())
+            return foodMotion.getValue();
+        else
+            return ItemUtil.isUsingBow() ? bowMotion.getValue() : 100;
     }
-    
-    // >>> 新增函数: 检测附近是否有敌人
-    private boolean isEnemyNearby(double range) {
-        // 遍历世界中的所有实体
-        for (Object entity : mc.theWorld.loadedEntityList) {
-            if (entity instanceof net.minecraft.entity.player.EntityPlayer) {
-                net.minecraft.entity.player.EntityPlayer player = (net.minecraft.entity.player.EntityPlayer) entity;
-    
-                // 检查基础条件:
-                // 1. 必须是另一个玩家 (不是自己)
-                // 2. 不是朋友
-                // 3. 不是队友
-                // 4. 没有死亡
-                // 5. 【新增】如果 botCheck 开启，则不能是 Bot
-                if (player != mc.thePlayer
-                    && !TeamUtil.isFriend(player)
-                    && !TeamUtil.isSameTeam(player)
-                    && player.deathTime <= 0
-                    && (!this.botCheck.getValue() || !TeamUtil.isBot(player))) { // <--- 关键的新增条件
-    
-                    // 检查距离
-                    if (mc.thePlayer.getDistanceToEntity(player) <= range) {
-                        return true; // 找到一个附近的有效玩家
-                    }
+
+    // ========================================================
+    //        KillAura 判断（与 AutoTool 完全一致）
+    // ========================================================
+    private boolean isKillAuraActive() {
+        KillAura ka = (KillAura) Myau.moduleManager.modules.get(KillAura.class);
+
+        if (ka == null || !ka.isEnabled())
+            return false;
+
+        return TeamUtil.isEntityLoaded(ka.getTarget())
+                && ka.isAttackAllowed();
+    }
+
+    // ========================================================
+    //                  主 NoSlow 逻辑
+    // ========================================================
+    @EventTarget
+    public void onLivingUpdate(LivingUpdateEvent event) {
+        if (this.isEnabled() && this.isAnyActive()) {
+
+            boolean shouldBypassSlow = true;
+
+            // -----------------------------------------------------------
+            // ★ 新逻辑：
+            // rangeCheck = true → 必须 KillAura 正在攻击才能触发 NoSlow
+            // rangeCheck = false → 不受 KillAura 限制，旧 NoSlow 行为
+            // -----------------------------------------------------------
+            if (this.isSwordActive() && this.rangeCheck.getValue()) {
+                if (!isKillAuraActive()) {
+                    shouldBypassSlow = false;
+                }
+            }
+
+            if (shouldBypassSlow) {
+                // === A: 启动 NoSlow ===
+                float multiplier = (float) this.getMotionMultiplier() / 100F;
+                mc.thePlayer.movementInput.moveForward *= multiplier;
+                mc.thePlayer.movementInput.moveStrafe *= multiplier;
+
+                if (!this.canSprint()) {
+                    mc.thePlayer.setSprinting(false);
+                }
+            } else {
+                // === B: 恢复原版剑减速（20%） ===
+                if (isSwordActive() && mc.thePlayer.isUsingItem()) {
+                    float vanilla = 0.2F;
+                    mc.thePlayer.movementInput.moveForward *= vanilla;
+                    mc.thePlayer.movementInput.moveStrafe *= vanilla;
+                    mc.thePlayer.setSprinting(false);
                 }
             }
         }
-        return false; // 未找到附近的敌对玩家
     }
-    // <<< 新增函数
 
-@EventTarget
-public void onLivingUpdate(LivingUpdateEvent event) {
-    if (this.isEnabled() && this.isAnyActive()) {
-        
-        boolean shouldBypassSlow = true;
-        
-        // 检查是否在剑模式下，并开启了范围检测
-        if (this.isSwordActive() && this.rangeCheck.getValue()) {
-            // 如果开启了范围检测，但附近没有敌人，则不触发NoSlow
-            if (!this.isEnemyNearby((double) this.triggerRange.getValue())) { 
-                shouldBypassSlow = false; // 禁用 NoSlow
-            }
-        }
-
-        if (shouldBypassSlow) {
-            // === 逻辑 A: 开启 NoSlow (自定义/无减速) ===
-            float multiplier = (float) this.getMotionMultiplier() / 100.0F;
-            mc.thePlayer.movementInput.moveForward *= multiplier;
-            mc.thePlayer.movementInput.moveStrafe *= multiplier;
-            if (!this.canSprint()) {
-                mc.thePlayer.setSprinting(false);
-            }
-        } else {
-            // === 逻辑 B: 关闭 NoSlow，恢复原版减速 (20% 速度) ===
-            // 只有在剑模式下使用物品时，才强制应用原版减速和取消疾跑
-            if (this.isSwordActive() && mc.thePlayer.isUsingItem()) {
-                // 原版使用物品时（如格挡）将移动速度降低 80%，即只剩下 20% (0.2F)
-                float vanillaSpeedMultiplier = 0.2F; 
-                
-                // 应用原版 20% 速度
-                mc.thePlayer.movementInput.moveForward *= vanillaSpeedMultiplier;
-                mc.thePlayer.movementInput.moveStrafe *= vanillaSpeedMultiplier;
-                
-                // 取消疾跑
-                mc.thePlayer.setSprinting(false);
-            }
-        }
-    }
-}
-
+    // ========================================================
+    //                   FLOAT 模式处理
+    // ========================================================
     @EventTarget(Priority.LOW)
     public void onPlayerUpdate(PlayerUpdateEvent event) {
         if (this.isEnabled() && this.isFloatMode()) {
@@ -169,25 +158,22 @@ public void onLivingUpdate(LivingUpdateEvent event) {
         }
     }
 
+    // ========================================================
+    //                 右键处理（保持原逻辑）
+    // ========================================================
     @EventTarget
     public void onRightClick(RightClickMouseEvent event) {
         if (this.isEnabled()) {
             if (mc.objectMouseOver != null) {
                 switch (mc.objectMouseOver.typeOfHit) {
                     case BLOCK:
-                        BlockPos blockPos = mc.objectMouseOver.getBlockPos();
-                        if (BlockUtil.isInteractable(blockPos) && !PlayerUtil.isSneaking()) {
-                            return;
-                        }
+                        BlockPos bp = mc.objectMouseOver.getBlockPos();
+                        if (BlockUtil.isInteractable(bp) && !PlayerUtil.isSneaking()) return;
                         break;
                     case ENTITY:
-                        Entity entityHit = mc.objectMouseOver.entityHit;
-                        if (entityHit instanceof EntityVillager) {
-                            return;
-                        }
-                        if (entityHit instanceof EntityLivingBase && TeamUtil.isShop((EntityLivingBase) entityHit)) {
-                            return;
-                        }
+                        Entity e = mc.objectMouseOver.entityHit;
+                        if (e instanceof EntityVillager) return;
+                        if (e instanceof EntityLivingBase && TeamUtil.isShop((EntityLivingBase) e)) return;
                 }
             }
             if (this.isFloatMode() && !Myau.floatManager.isPredicted() && mc.thePlayer.onGround) {
