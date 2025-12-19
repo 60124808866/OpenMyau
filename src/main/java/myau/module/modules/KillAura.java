@@ -959,15 +959,15 @@ public class KillAura extends Module {
                 if (this.autoBlockMinCPS.getValue() > this.autoBlockMaxCPS.getValue()) {
                     this.autoBlockMaxCPS.setValue(this.autoBlockMinCPS.getValue());
                 }
-                if(autoBlockMinCPS.getValue() > 10.0F && badCps){
-                    autoBlockMinCPS.setValue(10.0F);
+                if(autoBlockMinCPS.getValue() > 20.0F && badCps){
+                    autoBlockMinCPS.setValue(20.0F);
                 }
             } else if (this.autoBlockMaxCPS.getName().equals(value)) {
                 if (this.autoBlockMinCPS.getValue() > this.autoBlockMaxCPS.getValue()) {
                     this.autoBlockMinCPS.setValue(this.autoBlockMaxCPS.getValue());
                 }
-                if(autoBlockMaxCPS.getValue() > 10.0F && badCps){
-                    autoBlockMaxCPS.setValue(10.0F);
+                if(autoBlockMaxCPS.getValue() > 20.0F && badCps){
+                    autoBlockMaxCPS.setValue(20.0F);
                 }
             } else {
                 if (this.maxCPS.getName().equals(value) && this.minCPS.getValue() > this.maxCPS.getValue()) {
@@ -975,7 +975,7 @@ public class KillAura extends Module {
                 }
             }
         } else {
-            if (badCps && (this.autoBlockMinCPS.getValue() > 10.0F || this.autoBlockMaxCPS.getValue() > 10.0F)) {
+            if (badCps && (this.autoBlockMinCPS.getValue() > 20.0F || this.autoBlockMaxCPS.getValue() > 20.0F)) {
                 this.autoBlockMinCPS.setValue(8.0F);
                 this.autoBlockMaxCPS.setValue(10.0F);
             }
