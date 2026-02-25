@@ -45,25 +45,31 @@ public class ESP extends Module {
     public final BooleanProperty enemies = new BooleanProperty("enemies", true);
     public final BooleanProperty self = new BooleanProperty("self", false);
     public final BooleanProperty bots = new BooleanProperty("bots", false);
-    public final IntProperty healthPercentage = new IntProperty("health %", 50, 0, 100);
+    public final IntProperty healthPercentage = new IntProperty("Render Health %", 50, 0, 100);
 
     private boolean shouldRenderPlayer(EntityPlayer entityPlayer) {
         if (entityPlayer.deathTime > 0) {
             return false;
-        } else if (mc.getRenderViewEntity().getDistanceToEntity(entityPlayer) > 512.0F) {
+        }
+        else if (mc.getRenderViewEntity().getDistanceToEntity(entityPlayer) > 512.0F) {
             return false;
-        } else if (!entityPlayer.ignoreFrustumCheck && !RenderUtil.isInViewFrustum(entityPlayer.getEntityBoundingBox(),
+        }
+        else if (!entityPlayer.ignoreFrustumCheck && !RenderUtil.isInViewFrustum(entityPlayer.getEntityBoundingBox(),
                 0.1F)) {
             return false;
-        } else if (entityPlayer != mc.thePlayer && entityPlayer != mc.getRenderViewEntity()) {
+        }
+        else if (entityPlayer != mc.thePlayer && entityPlayer != mc.getRenderViewEntity()) {
             if (TeamUtil.isBot(entityPlayer)) {
                 return this.bots.getValue();
-            } else if (TeamUtil.isFriend(entityPlayer)) {
+            }
+            else if (TeamUtil.isFriend(entityPlayer)) {
                 return this.friends.getValue();
-            } else {
+            }
+            else {
                 return TeamUtil.isTarget(entityPlayer) ? this.enemies.getValue() : this.players.getValue();
             }
-        } else {
+        }
+        else {
             return this.self.getValue() && mc.gameSettings.thirdPersonView != 0;
         }
     }
@@ -71,9 +77,11 @@ public class ESP extends Module {
     private Color getEntityColor(EntityPlayer entityPlayer) {
         if (TeamUtil.isFriend(entityPlayer)) {
             return Myau.friendManager.getColor();
-        } else if (TeamUtil.isTarget(entityPlayer)) {
+        }
+        else if (TeamUtil.isTarget(entityPlayer)) {
             return Myau.targetManager.getColor();
-        } else {
+        }
+        else {
             switch (this.color.getValue()) {
                 case 0:
                     return TeamUtil.getTeamColor(entityPlayer, 1.0F);
