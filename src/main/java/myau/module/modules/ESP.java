@@ -45,7 +45,7 @@ public class ESP extends Module {
     public final BooleanProperty enemies = new BooleanProperty("enemies", true);
     public final BooleanProperty self = new BooleanProperty("self", false);
     public final BooleanProperty bots = new BooleanProperty("bots", false);
-    public final IntProperty healthPercentage = new IntProperty("health %", 50, 0, 100);
+    public final IntProperty healthPercentage = new IntProperty("Render Health %", 50, 0, 100);
 
     private boolean shouldRenderPlayer(EntityPlayer entityPlayer) {
         if (entityPlayer.deathTime > 0) {

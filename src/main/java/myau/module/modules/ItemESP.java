@@ -5,10 +5,10 @@ import myau.event.EventTarget;
 import myau.events.Render3DEvent;
 import myau.mixin.IAccessorRenderManager;
 import myau.module.Module;
-import myau.util.RenderUtil;
-import myau.util.TeamUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.PercentProperty;
+import myau.util.RenderUtil;
+import myau.util.TeamUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -36,12 +36,14 @@ public class ItemESP extends Module {
     public final BooleanProperty diamonds = new BooleanProperty("diamonds", true);
     public final BooleanProperty goldd = new BooleanProperty("gold", true);
     public final BooleanProperty iron = new BooleanProperty("iron", true);
+    public final BooleanProperty nametag = new BooleanProperty("nametag", true);
 
     private boolean shouldHighlightItem(int itemId) {
         return this.emeralds.getValue() && this.isEmeraldItem(itemId)
                 || this.diamonds.getValue() && this.isDiamondItem(itemId)
                 || this.goldd.getValue() && this.isGoldItem(itemId)
-                || this.iron.getValue() && this.isIronItem(itemId);
+                || this.iron.getValue() && this.isIronItem(itemId)
+                || this.nametag.getValue() && this.isNametagItem(itemId);
     }
 
     private boolean isEmeraldItem(int itemId) {
@@ -77,6 +79,12 @@ public class ItemESP extends Module {
         Item item = Item.getItemById(itemId);
         Block block = Block.getBlockFromItem(item);
         return item == Items.iron_ingot || block == Blocks.iron_block || block == Blocks.iron_ore;
+    }
+
+    private boolean isNametagItem(int itemId) {
+        Item item = Item.getItemById(itemId);
+        Block block = Block.getBlockFromItem(item);
+        return item == Items.name_tag;
     }
 
     private Color getItemColor(int itemId) {
