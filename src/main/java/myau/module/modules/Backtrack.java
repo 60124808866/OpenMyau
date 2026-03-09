@@ -52,7 +52,7 @@ public class Backtrack extends Module {
     public final BooleanProperty esp;
 
     private final ConcurrentLinkedQueue<Packet<?>> incomingQueue = new ConcurrentLinkedQueue<>();
-    private final Map<Integer, Vec3> realPositions = new HashMap<>();
+    private final Map<Integer, long[]> encodedPositions = new HashMap<>();
 
     private EntityLivingBase target;
     private EntityLivingBase lastAttacked;
@@ -79,7 +79,7 @@ public class Backtrack extends Module {
     @Override
     public void onEnabled() {
         incomingQueue.clear();
-        realPositions.clear();
+        encodedPositions.clear();
         realAABB = null;
         backtrackStartTime = 0L;
         target = null;
@@ -93,7 +93,7 @@ public class Backtrack extends Module {
         setLagRangeEnabled(true);
         releaseIncoming();
         incomingQueue.clear();
-        realPositions.clear();
+        encodedPositions.clear();
         realAABB = null;
         target = null;
         lastAttacked = null;
@@ -127,9 +127,15 @@ public class Backtrack extends Module {
         return System.currentTimeMillis() - lastAttackTime <= COMBAT_LOCK_MS;
     }
 
+    private Vec3 getRealPosition(int entityId) {
+        long[] enc = encodedPositions.get(entityId);
+        if (enc == null) return null;
+        return new Vec3(enc[0] / 32.0, enc[1] / 32.0, enc[2] / 32.0);
+    }
+
     private boolean canBacktrack() {
         if (target == null || target.isDead) return false;
-        Vec3 real = realPositions.get(target.getEntityId());
+        Vec3 real = getRealPosition(target.getEntityId());
         if (real == null) return false;
         if (distanceTo(real) > range.getValue()) return false;
         if (backtrackStartTime > 0 && System.currentTimeMillis() - backtrackStartTime > currentMaxDelay()) return false;
@@ -156,6 +162,7 @@ public class Backtrack extends Module {
         Packet<?> p;
         while ((p = incomingQueue.poll()) != null) processPacketUnchecked(p);
         backtrackStartTime = 0L;
+        realAABB = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -173,27 +180,39 @@ public class Backtrack extends Module {
             Entity e = p.getEntity(mc.theWorld);
             if (e == null) return;
             int id = e.getEntityId();
-            Vec3 base = realPositions.containsKey(id)
-                    ? realPositions.get(id)
-                    : new Vec3(e.posX, e.posY, e.posZ);
-            Vec3 updated = base.addVector(
-                    p.func_149062_c() / 32.0,
-                    p.func_149061_d() / 32.0,
-                    p.func_149064_e() / 32.0);
-            realPositions.put(id, updated);
+
+            long[] base = encodedPositions.computeIfAbsent(id, k ->
+                    new long[]{
+                            Math.round(e.posX * 32.0),
+                            Math.round(e.posY * 32.0),
+                            Math.round(e.posZ * 32.0)
+                    });
+
+            base[0] += p.func_149062_c();
+            base[1] += p.func_149061_d();
+            base[2] += p.func_149064_e();
+
             if (target != null && id == target.getEntityId()) {
-                double dx = p.func_149062_c() / 32.0;
-                double dy = p.func_149061_d() / 32.0;
-                double dz = p.func_149064_e() / 32.0;
-                if (realAABB != null) realAABB = realAABB.offset(dx, dy, dz);
+                double x = base[0] / 32.0;
+                double y = base[1] / 32.0;
+                double z = base[2] / 32.0;
+                double hw = target.width / 2.0;
+                realAABB = new AxisAlignedBB(x - hw, y, z - hw, x + hw, y + target.height, z + hw);
             }
+
         } else if (packet instanceof S18PacketEntityTeleport) {
             S18PacketEntityTeleport p = (S18PacketEntityTeleport) packet;
-            double x = p.getX() / 32.0;
-            double y = p.getY() / 32.0;
-            double z = p.getZ() / 32.0;
-            realPositions.put(p.getEntityId(), new Vec3(x, y, z));
-            if (target != null && p.getEntityId() == target.getEntityId()) {
+            int id = p.getEntityId();
+
+            long encX = p.getX();
+            long encY = p.getY();
+            long encZ = p.getZ();
+            encodedPositions.put(id, new long[]{encX, encY, encZ});
+
+            if (target != null && id == target.getEntityId()) {
+                double x = encX / 32.0;
+                double y = encY / 32.0;
+                double z = encZ / 32.0;
                 double hw = target.width / 2.0;
                 realAABB = new AxisAlignedBB(x - hw, y, z - hw, x + hw, y + target.height, z + hw);
             }
@@ -248,7 +267,6 @@ public class Backtrack extends Module {
         if (newTarget != target) {
             setLagRangeEnabled(true);
             releaseAll();
-            realAABB = null;
         }
         target = newTarget;
 
@@ -257,14 +275,26 @@ public class Backtrack extends Module {
             return;
         }
 
-        if (!realPositions.containsKey(target.getEntityId())) {
-            realPositions.put(target.getEntityId(), new Vec3(target.posX, target.posY, target.posZ));
-        }
+        encodedPositions.computeIfAbsent(target.getEntityId(), k ->
+                new long[]{
+                        Math.round(target.posX * 32.0),
+                        Math.round(target.posY * 32.0),
+                        Math.round(target.posZ * 32.0)
+                });
+
         if (realAABB == null) {
-            realAABB = target.getEntityBoundingBox();
+            long[] enc = encodedPositions.get(target.getEntityId());
+            if (enc != null) {
+                double x = enc[0] / 32.0;
+                double y = enc[1] / 32.0;
+                double z = enc[2] / 32.0;
+                double hw = target.width / 2.0;
+                realAABB = new AxisAlignedBB(x - hw, y, z - hw, x + hw, y + target.height, z + hw);
+            }
         }
 
-        Vec3 real = realPositions.get(target.getEntityId());
+        Vec3 real = getRealPosition(target.getEntityId());
+        if (real == null) return;
 
         boolean shouldRelease = false;
         if (mc.thePlayer.hurtTime == mc.thePlayer.maxHurtTime && mc.thePlayer.maxHurtTime > 0) shouldRelease = true;
@@ -289,14 +319,23 @@ public class Backtrack extends Module {
     public void onRender3D(Render3DEvent event) {
         if (!isEnabled() || !esp.getValue()) return;
         if (target == null || realAABB == null) return;
+
         AxisAlignedBB visual = target.getEntityBoundingBox();
         double dx = Math.abs(realAABB.minX - visual.minX);
         double dy = Math.abs(realAABB.minY - visual.minY);
         double dz = Math.abs(realAABB.minZ - visual.minZ);
         if (dx < 0.05 && dy < 0.05 && dz < 0.05) return;
-        Color color = (target instanceof EntityPlayer) ? TeamUtil.getTeamColor((EntityPlayer) target, 1.0F) : new Color(255, 60, 60);
+
+        Color color = (target instanceof EntityPlayer)
+                ? TeamUtil.getTeamColor((EntityPlayer) target, 1.0F)
+                : new Color(255, 60, 60);
+
         IAccessorRenderManager rm = (IAccessorRenderManager) mc.getRenderManager();
-        AxisAlignedBB aabb = realAABB.offset(-rm.getRenderPosX(), -rm.getRenderPosY(), -rm.getRenderPosZ());
+        AxisAlignedBB aabb = realAABB.offset(
+                -rm.getRenderPosX(),
+                -rm.getRenderPosY(),
+                -rm.getRenderPosZ());
+
         RenderUtil.enableRenderState();
         RenderUtil.drawFilledBox(aabb, color.getRed(), color.getGreen(), color.getBlue());
         RenderUtil.disableRenderState();
