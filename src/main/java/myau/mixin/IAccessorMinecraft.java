@@ -23,7 +23,10 @@ public interface IAccessorMinecraft {
 
     @Accessor("rightClickDelayTimer")
     void setRightClickDelayTimer(int integer);
-    
+
+    @Accessor("leftClickCounter")
+    void setLeftClickCounter(int value);
+
     @Invoker("clickMouse")
     void callClickMouse();
     
