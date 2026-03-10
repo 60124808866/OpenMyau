@@ -94,13 +94,16 @@ public abstract class MixinMinecraft {
             cancellable = true
     )
     private void clickMouse(CallbackInfo callbackInfo) {
-        if (Myau.moduleManager != null && Myau.moduleManager.modules.get(NoHitDelay.class).isEnabled()) {
-            this.leftClickCounter = 0;
-        }
-        LeftClickMouseEvent event = new LeftClickMouseEvent();
-        EventManager.call(event);
-        if (event.isCancelled()) {
-            callbackInfo.cancel();
+        // Only fire event when actually clicking (not on cooldown)
+        if (this.leftClickCounter <= 0) {
+            if (Myau.moduleManager != null && Myau.moduleManager.modules.get(NoHitDelay.class).isEnabled()) {
+                this.leftClickCounter = 0;
+            }
+            LeftClickMouseEvent event = new LeftClickMouseEvent();
+            EventManager.call(event);
+            if (event.isCancelled()) {
+                callbackInfo.cancel();
+            }
         }
     }
 
@@ -110,10 +113,14 @@ public abstract class MixinMinecraft {
             cancellable = true
     )
     private void rightClickMouse(CallbackInfo callbackInfo) {
-        RightClickMouseEvent event = new RightClickMouseEvent();
-        EventManager.call(event);
-        if (event.isCancelled()) {
-            callbackInfo.cancel();
+        // Only fire event when actually clicking (not on cooldown)
+        IAccessorMinecraft accessor = (IAccessorMinecraft) this;
+        if (accessor.getRightClickDelayTimer() <= 0) {
+            RightClickMouseEvent event = new RightClickMouseEvent();
+            EventManager.call(event);
+            if (event.isCancelled()) {
+                callbackInfo.cancel();
+            }
         }
     }
 

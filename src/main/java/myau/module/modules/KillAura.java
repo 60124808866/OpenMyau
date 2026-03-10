@@ -71,6 +71,7 @@ public class KillAura extends Module {
     public final FloatProperty autoBlockMinCPS;
     public final FloatProperty autoBlockMaxCPS;
     public final FloatProperty autoBlockRange;
+    public final IntProperty maxHurtTime;
     public final FloatProperty swingRange;
     public final FloatProperty attackRange;
     public final IntProperty fov;
@@ -82,6 +83,7 @@ public class KillAura extends Module {
     public final PercentProperty smoothing;
     public final IntProperty angleStep;
     public final BooleanProperty throughWalls;
+    public final BooleanProperty swingThrough;
     public final BooleanProperty requirePress;
     public final BooleanProperty allowMining;
     public final BooleanProperty weaponsOnly;
@@ -122,9 +124,24 @@ public class KillAura extends Module {
                     if (mc.playerController.getCurrentGameType() != GameType.SPECTATOR) {
                         PlayerUtil.attackEntity(this.target.getEntity());
                     }
-                    this.hitRegistered = true;
                     return true;
                 }
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private boolean performSwing() {
+        if (!Myau.playerStateManager.digging && !Myau.playerStateManager.placing) {
+            if (this.isPlayerBlocking() && this.autoBlock.getValue() != 1) {
+                return false;
+            } else if (this.attackDelayMS > 0L) {
+                return false;
+            } else {
+                this.attackDelayMS = this.attackDelayMS + this.getAttackDelay();
+                mc.thePlayer.swingItem();
+                return true;
             }
         } else {
             return false;
@@ -205,8 +222,15 @@ public class KillAura extends Module {
     private boolean canAutoBlock() {
         if (!ItemUtil.isHoldingSword()) {
             return false;
+        } else if (this.autoBlockRequirePress.getValue() && !PlayerUtil.isUsingItem()) {
+            return false;
         } else {
-            return !this.autoBlockRequirePress.getValue() || PlayerUtil.isUsingItem();
+            if (this.maxHurtTime.getValue() > 0) {
+                if (mc.thePlayer.hurtResistantTime <= this.maxHurtTime.getValue() / 50) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -231,7 +255,7 @@ public class KillAura extends Module {
                 return false;
             } else if (RotationUtil.angleToEntity(entityLivingBase) > this.fov.getValue().floatValue()) {
                 return false;
-            } else if (!this.throughWalls.getValue() && RotationUtil.rayTrace(entityLivingBase) != null) {
+            } else if (!this.throughWalls.getValue() && !this.swingThrough.getValue() && RotationUtil.rayTrace(entityLivingBase) != null) {
                 return false;
             } else if (entityLivingBase instanceof EntityOtherPlayerMP) {
                 if (!this.players.getValue()) {
@@ -333,6 +357,7 @@ public class KillAura extends Module {
         this.autoBlockMinCPS = new FloatProperty("auto-block-min-aps", 8.0F, 1.0F, 20.0F);
         this.autoBlockMaxCPS = new FloatProperty("auto-block-max-aps", 10.0F, 1.0F, 20.0F);
         this.autoBlockRange = new FloatProperty("auto-block-range", 6.0F, 3.0F, 8.0F);
+        this.maxHurtTime = new IntProperty("max-hurt-time", 0, 0, 100);
         this.swingRange = new FloatProperty("swing-range", 3.5F, 3.0F, 6.0F);
         this.attackRange = new FloatProperty("attack-range", 3.0F, 3.0F, 6.0F);
         this.fov = new IntProperty("fov", 360, 30, 360);
@@ -344,6 +369,7 @@ public class KillAura extends Module {
         this.smoothing = new PercentProperty("smoothing", 0);
         this.angleStep = new IntProperty("angle-step", 90, 30, 180);
         this.throughWalls = new BooleanProperty("through-walls", true);
+        this.swingThrough = new BooleanProperty("swing-through", false);
         this.requirePress = new BooleanProperty("require-press", false);
         this.allowMining = new BooleanProperty("allow-mining", true);
         this.weaponsOnly = new BooleanProperty("weapons-only", true);
@@ -635,12 +661,15 @@ public class KillAura extends Module {
                                             this.blockTick = 1;
                                             break;
                                         case 1:
-                                            if (this.isPlayerBlocking()) {
+                                            if (this.isPlayerBlocking() && this.attackDelayMS <= 100L) {
                                                 this.stopBlock();
-                                                attack = false;
+                                                this.blockTick = 2;
                                             }
-                                            if (this.attackDelayMS <= 50L) {
-                                                this.blockTick = 0;
+                                            break;
+                                        case 2:
+                                            if (!this.isPlayerBlocking() && this.attackDelayMS <= 50L) {
+                                                swap = true;
+                                                this.blockTick = 1;
                                             }
                                             break;
                                         default:
@@ -654,6 +683,7 @@ public class KillAura extends Module {
                                 Myau.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
                                 this.isBlocking = false;
                                 this.fakeBlockState = false;
+                                this.blockTick = 0;
                             }
                             break;
                         case 8: // FAKE
@@ -669,7 +699,11 @@ public class KillAura extends Module {
                     }
                 }
                 boolean attacked = false;
-                if (this.isBoxInSwingRange(this.target.getBox())) {
+                boolean behindWall = this.swingThrough.getValue()
+                        && RotationUtil.rayTrace(this.target.getEntity()) != null;
+                boolean inSwingOrWall = this.isBoxInSwingRange(this.target.getBox()) || behindWall;
+
+                if (inSwingOrWall) {
                     if (this.rotations.getValue() == 2 || this.rotations.getValue() == 3) {
                         float[] rotations = RotationUtil.getRotationsToBox(
                                 this.target.getBox(),
@@ -686,8 +720,13 @@ public class KillAura extends Module {
                             event.setPervRotation(rotations[0], 1);
                         }
                     }
+
                     if (attack) {
-                        attacked = this.performAttack(event.getNewYaw(), event.getNewPitch());
+                        if (behindWall) {
+                            attacked = this.performSwing();
+                        } else {
+                            attacked = this.performAttack(event.getNewYaw(), event.getNewPitch());
+                        }
                     }
                 }
                 if (swap) {
@@ -710,9 +749,12 @@ public class KillAura extends Module {
         if (this.isEnabled()) {
             switch (event.getType()) {
                 case PRE:
+                    boolean currentTargetBehindWall = this.swingThrough.getValue()
+                            && this.target != null
+                            && RotationUtil.rayTrace(this.target.getEntity()) != null;
                     if (this.target == null
                             || !this.isValidTarget(this.target.getEntity())
-                            || !this.isBoxInAttackRange(this.target.getBox())
+                            || (!currentTargetBehindWall && !this.isBoxInAttackRange(this.target.getBox()))
                             || !this.isBoxInSwingRange(this.target.getBox())
                             || this.timer.hasTimeElapsed(this.switchDelay.getValue().longValue())) {
                         this.timer.reset();
@@ -730,8 +772,9 @@ public class KillAura extends Module {
                             if (targets.stream().anyMatch(this::isInSwingRange)) {
                                 targets.removeIf(entityLivingBase -> !this.isInSwingRange(entityLivingBase));
                             }
-                            if (targets.stream().anyMatch(this::isInAttackRange)) {
-                                targets.removeIf(entityLivingBase -> !this.isInAttackRange(entityLivingBase));
+                            if (targets.stream().anyMatch(e -> this.isInAttackRange(e) || (this.swingThrough.getValue() && RotationUtil.rayTrace(e) != null))) {
+                                targets.removeIf(entityLivingBase -> !this.isInAttackRange(entityLivingBase)
+                                        && !(this.swingThrough.getValue() && RotationUtil.rayTrace(entityLivingBase) != null));
                             }
                             if (targets.stream().anyMatch(this::isPlayerTarget)) {
                                 targets.removeIf(entityLivingBase -> !this.isPlayerTarget(entityLivingBase));

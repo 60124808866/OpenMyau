@@ -97,6 +97,11 @@ public class LongJump extends Module {
                     if (this.isAutoMode() && !this.fireballLaunched && this.readyToUseFireball) {
                         int slot = this.findFireballInHotbar();
                         if (slot != -1) {
+                            Module freezeModule = Myau.moduleManager.getModule("Freeze");
+                            if (freezeModule != null && freezeModule.isEnabled()) {
+                                ((Freeze) freezeModule).ignoreNextVelocity();
+                            }
+                            
                             this.savedHotbarSlot = mc.thePlayer.inventory.currentItem;
                             mc.thePlayer.inventory.currentItem = slot;
                             ((IAccessorPlayerControllerMP) mc.playerController).callSyncCurrentPlayItem();
@@ -166,7 +171,7 @@ public class LongJump extends Module {
                     return;
                 }
             }
-            if (this.isAutoMode() && !this.isJumping) {
+            if (this.isAutoMode() && !this.isJumping && !this.fireballLaunched) {
                 if (this.jumpTimer.hasTimeElapsed(1500L)) {
                     this.setEnabled(false);
                     return;
@@ -214,6 +219,11 @@ public class LongJump extends Module {
         if (event.getKey() == mc.gameSettings.keyBindUseItem.getKeyCode()) {
             ItemStack stack = mc.thePlayer.inventory.getCurrentItem();
             if (stack != null && stack.getItem() instanceof ItemFireball) {
+                Module freezeModule = Myau.moduleManager.getModule("Freeze");
+                if (freezeModule != null && freezeModule.isEnabled()) {
+                    ((Freeze) freezeModule).ignoreNextVelocity();
+                }
+                
                 this.fireballTimer.reset();
             }
         }

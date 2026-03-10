@@ -72,6 +72,7 @@ public class Scaffold extends Module {
     public final ModeProperty keepY = new ModeProperty("keep-y", 0, new String[]{"NONE", "VANILLA", "EXTRA", "TELLY"});
     public final BooleanProperty keepYonPress = new BooleanProperty("keep-y-on-press", false, () -> this.keepY.getValue() != 0);
     public final BooleanProperty disableWhileJumpActive = new BooleanProperty("no-keep-y-on-jump-potion", false, () -> this.keepY.getValue() != 0);
+    public final BooleanProperty tellyDiagonalSlowed = new BooleanProperty("telly-diagonal-slowed", true, () -> this.tower.getValue() == 3);
     public final BooleanProperty multiplace = new BooleanProperty("multi-place", true);
     public final BooleanProperty safeWalk = new BooleanProperty("safe-walk", true);
     public final BooleanProperty swing = new BooleanProperty("swing", true);
@@ -232,7 +233,15 @@ public class Scaffold extends Module {
         if (mc.thePlayer.onGround && MoveUtil.isForwardPressed() && !PlayerUtil.isAirAbove()) {
             boolean keepY = this.keepY.getValue() == 3;
             boolean tower = this.tower.getValue() == 3;
-            return keepY && this.stage > 0 || tower && mc.gameSettings.keyBindJump.isKeyDown();
+            
+            if (tower && mc.gameSettings.keyBindJump.isKeyDown()) {
+                if (this.tellyDiagonalSlowed.getValue() && this.isDiagonal(this.getCurrentYaw())) {
+                    return false;
+                }
+                return true;
+            }
+            
+            return keepY && this.stage > 0;
         } else {
             return false;
         }
@@ -481,6 +490,7 @@ public class Scaffold extends Module {
                     && mc.gameSettings.keyBindJump.isKeyDown()
                     && ItemUtil.isHoldingBlock()) {
                 int yState = (int) (mc.thePlayer.posY % 1.0 * 100.0);
+                
                 switch (this.tower.getValue()) {
                     case 1:
                         switch (this.towerTick) {
@@ -602,6 +612,15 @@ public class Scaffold extends Module {
                                 this.towerDelay = 0;
                                 return;
                         }
+                    case 3:
+                        if (this.tellyDiagonalSlowed.getValue() && this.isDiagonal(this.getCurrentYaw())) {
+                            this.towerTick = 0;
+                            this.towerDelay = 0;
+                            return;
+                        }
+                        this.towerTick = 0;
+                        this.towerDelay = 0;
+                        return;
                     default:
                         this.towerTick = 0;
                         this.towerDelay = 0;
@@ -632,6 +651,7 @@ public class Scaffold extends Module {
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (this.isEnabled()) {
             float speed = this.getSpeed();
+            
             if (speed != 1.0F) {
                 if (mc.thePlayer.movementInput.moveForward != 0.0F && mc.thePlayer.movementInput.moveStrafe != 0.0F) {
                     mc.thePlayer.movementInput.moveForward = mc.thePlayer.movementInput.moveForward * (1.0F / (float) Math.sqrt(2.0));

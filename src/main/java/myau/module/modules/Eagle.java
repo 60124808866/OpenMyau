@@ -26,6 +26,7 @@ public class Eagle extends Module {
     public final BooleanProperty pitchCheck = new BooleanProperty("pitch-check", true);
     public final BooleanProperty blocksOnly = new BooleanProperty("blocks-only", true);
     public final BooleanProperty sneakOnly = new BooleanProperty("sneaking-only", false);
+    public final BooleanProperty rightOnly = new BooleanProperty("right-click-only", false);
 
     private boolean canMoveSafely() {
         double[] offset = MoveUtil.predictMovement();
@@ -38,6 +39,8 @@ public class Eagle extends Module {
         } else if (this.pitchCheck.getValue() && mc.thePlayer.rotationPitch < 69.0F) {
             return false;
         } else if(sneakOnly.getValue() && !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode())){
+            return false;
+        } else if(rightOnly.getValue() && !mc.gameSettings.keyBindUseItem.isKeyDown()){
             return false;
         } else {
             return (!this.blocksOnly.getValue() || ItemUtil.isHoldingBlock()) && mc.thePlayer.onGround;

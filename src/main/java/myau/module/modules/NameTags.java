@@ -51,6 +51,7 @@ public class NameTags extends Module {
     public final ModeProperty distanceMode = new ModeProperty("distance", 0, new String[]{"NONE", "DEFAULT", "VAPE"});
     public final ModeProperty healthMode = new ModeProperty("health", 2, new String[]{"NONE", "HP", "HEARTS", "TAB"});
     public final BooleanProperty armor = new BooleanProperty("armor", true);
+    public final BooleanProperty sneak = new BooleanProperty("sneak", true);
     public final BooleanProperty effects = new BooleanProperty("effects", true);
     public final BooleanProperty players = new BooleanProperty("players", true);
     public final BooleanProperty friends = new BooleanProperty("friends", true);
@@ -133,6 +134,12 @@ public class NameTags extends Module {
                             case 2:
                                 distanceText = String.format("&a[&f%d&a]&r ", (int) distance);
                         }
+
+                        String sneakText = "";
+                        if (this.sneak.getValue() && entity.isSneaking()) {
+                            sneakText = "&eS&r ";
+                        }
+
                         float health = ((EntityLivingBase) entity).getHealth();
                         float absorption = ((EntityLivingBase) entity).getAbsorptionAmount();
                         float max = ((EntityLivingBase) entity).getMaxHealth();
@@ -163,7 +170,7 @@ public class NameTags extends Module {
                                     }
                                 }
                         }
-                        String color = ChatColors.formatColor(String.format("%s&f%s&r%s", distanceText, teamName, healText));
+                        String color = ChatColors.formatColor(String.format("%s%s&f%s&r%s", distanceText, sneakText, teamName, healText));
                         int width = mc.fontRendererObj.getStringWidth(color);
                         if (this.backgroundOpacity.getValue() > 0) {
                             Color textColor = !entity.isSneaking() && !entity.isInvisible()

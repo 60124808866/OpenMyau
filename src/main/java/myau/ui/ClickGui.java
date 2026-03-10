@@ -35,6 +35,7 @@ public class ClickGui extends GuiScreen {
         combatModules.add(Myau.moduleManager.getModule(Velocity.class));
         combatModules.add(Myau.moduleManager.getModule(Freeze.class));
         combatModules.add(Myau.moduleManager.getModule(Reach.class));
+        combatModules.add(Myau.moduleManager.getModule(Backtrack.class));
         combatModules.add(Myau.moduleManager.getModule(TargetStrafe.class));
         combatModules.add(Myau.moduleManager.getModule(NoHitDelay.class));
         combatModules.add(Myau.moduleManager.getModule(AntiFireball.class));
@@ -48,11 +49,13 @@ public class ClickGui extends GuiScreen {
         movementModules.add(Myau.moduleManager.getModule(AntiAFK.class));
         movementModules.add(Myau.moduleManager.getModule(Fly.class));
         movementModules.add(Myau.moduleManager.getModule(Speed.class));
+        movementModules.add(Myau.moduleManager.getModule(myau.module.modules.Timer.class));
         movementModules.add(Myau.moduleManager.getModule(LongJump.class));
         movementModules.add(Myau.moduleManager.getModule(Sprint.class));
         movementModules.add(Myau.moduleManager.getModule(SafeWalk.class));
         movementModules.add(Myau.moduleManager.getModule(Jesus.class));
         movementModules.add(Myau.moduleManager.getModule(Blink.class));
+        movementModules.add(Myau.moduleManager.getModule(FakeLag.class));
         movementModules.add(Myau.moduleManager.getModule(NoFall.class));
         movementModules.add(Myau.moduleManager.getModule(NoSlow.class));
         movementModules.add(Myau.moduleManager.getModule(KeepSprint.class));
@@ -86,6 +89,7 @@ public class ClickGui extends GuiScreen {
         playerModules.add(Myau.moduleManager.getModule(InvManager.class));
         playerModules.add(Myau.moduleManager.getModule(InvWalk.class));
         playerModules.add(Myau.moduleManager.getModule(Scaffold.class));
+        playerModules.add(Myau.moduleManager.getModule(Clutch.class));
         playerModules.add(Myau.moduleManager.getModule(AutoBlockIn.class));
         playerModules.add(Myau.moduleManager.getModule(SpeedMine.class));
         playerModules.add(Myau.moduleManager.getModule(FastPlace.class));
