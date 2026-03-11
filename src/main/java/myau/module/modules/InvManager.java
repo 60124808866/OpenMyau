@@ -104,26 +104,32 @@ public class InvManager extends Module {
                         }
                         int preferredSwordHotbarSlot = this.swordSlot.getValue() - 1;
                         int inventorySwordSlot = ItemUtil.findSwordInInventorySlot(preferredSwordHotbarSlot, this.checkDurability.getValue());
-                        if (inventorySwordSlot == -1) inventorySwordSlot = ItemUtil.findSwordInInventorySlot(preferredSwordHotbarSlot, false);
+                        if (inventorySwordSlot == -1)
+                            inventorySwordSlot = ItemUtil.findSwordInInventorySlot(preferredSwordHotbarSlot, false);
                         int preferredPickaxeHotbarSlot = this.pickaxeSlot.getValue() - 1;
                         int inventoryPickaxeSlot = ItemUtil.findInventorySlot("pickaxe", preferredPickaxeHotbarSlot, this.checkDurability.getValue());
-                        if (inventoryPickaxeSlot == -1) inventoryPickaxeSlot = ItemUtil.findInventorySlot("pickaxe", preferredPickaxeHotbarSlot, false);
+                        if (inventoryPickaxeSlot == -1)
+                            inventoryPickaxeSlot = ItemUtil.findInventorySlot("pickaxe", preferredPickaxeHotbarSlot, false);
                         int preferredShovelHotbarSlot = this.shovelSlot.getValue() - 1;
                         int inventoryShovelSlot = ItemUtil.findInventorySlot("shovel", preferredShovelHotbarSlot, this.checkDurability.getValue());
-                        if (inventoryShovelSlot == -1) inventoryShovelSlot = ItemUtil.findInventorySlot("shovel", preferredShovelHotbarSlot, false);
+                        if (inventoryShovelSlot == -1)
+                            inventoryShovelSlot = ItemUtil.findInventorySlot("shovel", preferredShovelHotbarSlot, false);
                         int preferredAxeHotbarSlot = this.axeSlot.getValue() - 1;
                         int inventoryAxeSlot = ItemUtil.findInventorySlot("axe", preferredAxeHotbarSlot, this.checkDurability.getValue());
-                        if (inventoryAxeSlot == -1) inventoryAxeSlot = ItemUtil.findInventorySlot("axe", preferredAxeHotbarSlot, false);
+                        if (inventoryAxeSlot == -1)
+                            inventoryAxeSlot = ItemUtil.findInventorySlot("axe", preferredAxeHotbarSlot, false);
                         int preferredBlocksHotbarSlot = this.blocksSlot.getValue() - 1;
                         int inventoryBlocksSlot = ItemUtil.findInventorySlot(preferredBlocksHotbarSlot, ItemUtil.ItemType.Block);
                         int preferredProjectileHotbarSlot = this.projectileSlot.getValue() - 1;
                         int inventoryProjectileSlot = ItemUtil.findInventorySlot(preferredProjectileHotbarSlot, ItemUtil.ItemType.Projectile);
-                        if (inventoryProjectileSlot == -1) inventoryProjectileSlot = ItemUtil.findInventorySlot(preferredProjectileHotbarSlot, ItemUtil.ItemType.FishRod);
+                        if (inventoryProjectileSlot == -1)
+                            inventoryProjectileSlot = ItemUtil.findInventorySlot(preferredProjectileHotbarSlot, ItemUtil.ItemType.FishRod);
                         int preferredGoldAppleHotbarSlot = this.goldAppleSlot.getValue() - 1;
                         int inventoryGoldAppleSlot = ItemUtil.findInventorySlot(preferredGoldAppleHotbarSlot, ItemUtil.ItemType.GoldApple);
                         int preferredBowHotbarSlot = this.bowSlot.getValue() - 1;
                         int inventoryBowSlot = ItemUtil.findBowInventorySlot(preferredBowHotbarSlot, this.checkDurability.getValue());
-                        if (inventoryBowSlot == -1) inventoryBowSlot = ItemUtil.findBowInventorySlot(preferredBowHotbarSlot, false);
+                        if (inventoryBowSlot == -1)
+                            inventoryBowSlot = ItemUtil.findBowInventorySlot(preferredBowHotbarSlot, false);
                         if (this.autoArmor.getValue() && this.autoArmorTime.hasTimeElapsed(this.autoArmorInterval.getValue() * 50L)) {
                             for (int i = 0; i < 4; i++) {
                                 int equippedSlot = equippedArmorSlots.get(i);
@@ -207,6 +213,7 @@ public class InvManager extends Module {
                         if (this.dropTrash.getValue()) {
                             int currentBlockCount = this.getStackSize(inventoryBlocksSlot);
                             int currentProjectileCount = this.getStackSize(inventoryProjectileSlot);
+                            System.out.println("before: " + currentBlockCount);
                             for (int i = 0; i < 36; i++) {
                                 if (!equippedArmorSlots.contains(i)
                                         && !inventoryArmorSlots.contains(i)
@@ -228,7 +235,9 @@ public class InvManager extends Module {
                                         if (isProjectile) {
                                             currentProjectileCount += stack.stackSize;
                                         }
-                                        if (ItemUtil.isNotSpecialItem(stack) &&( isBlock && currentBlockCount >= this.blocks.getValue() || isProjectile && currentProjectileCount >= this.projectiles.getValue())) {
+                                        if (isBlock ? currentBlockCount > this.blocks.getValue() :
+                                                isProjectile ? currentProjectileCount > this.projectiles.getValue() :
+                                                        ItemUtil.isNotSpecialItem(stack)) {
                                             this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(i), 1, 4);
                                             return;
                                         }
