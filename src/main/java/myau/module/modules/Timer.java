@@ -6,6 +6,7 @@ import myau.event.types.Priority;
 import myau.events.LivingUpdateEvent;
 import myau.module.Module;
 import myau.property.properties.FloatProperty;
+import myau.property.properties.ModeProperty;
 
 import java.util.Comparator;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -14,10 +15,15 @@ public class Timer extends Module {
 
     private static final CopyOnWriteArrayList<TimerRequest> requests = new CopyOnWriteArrayList<>();
 
-    public final FloatProperty speed = new FloatProperty("speed", 1.0F, 0.01F, 10.0F);
+    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"SPEED", "FREEZE"});
+    public final FloatProperty speed = new FloatProperty("speed", 1.0F, 0.01F, 10.0F, () -> this.mode.getValue() == 0);
 
     public Timer() {
         super("Timer", false);
+    }
+
+    public boolean isFreezing() {
+        return this.isEnabled() && this.mode.getValue() == 1;
     }
 
     public static float getRequestedSpeed() {
@@ -32,7 +38,7 @@ public class Timer extends Module {
                 ? (Timer) Myau.moduleManager.modules.get(Timer.class)
                 : null;
 
-        if (instance != null && instance.isEnabled()) {
+        if (instance != null && instance.isEnabled() && instance.mode.getValue() == 0) {
             return instance.speed.getValue();
         }
 
@@ -61,6 +67,9 @@ public class Timer extends Module {
 
     @Override
     public String[] getSuffix() {
+        if (this.mode.getValue() == 1) {
+            return new String[]{"Freeze"};
+        }
         return new String[]{String.format("%.1fx", this.speed.getValue())};
     }
 

@@ -23,6 +23,7 @@ public class Eagle extends Module {
     public final IntProperty minDelay = new IntProperty("min-delay", 2, 0, 10);
     public final IntProperty maxDelay = new IntProperty("max-delay", 3, 0, 10);
     public final BooleanProperty directionCheck = new BooleanProperty("direction-check", true);
+    public final BooleanProperty jumpCheck = new BooleanProperty("jump-check", true);
     public final BooleanProperty pitchCheck = new BooleanProperty("pitch-check", true);
     public final BooleanProperty blocksOnly = new BooleanProperty("blocks-only", true);
     public final BooleanProperty sneakOnly = new BooleanProperty("sneaking-only", false);
@@ -36,11 +37,13 @@ public class Eagle extends Module {
     private boolean shouldSneak() {
         if (this.directionCheck.getValue() && mc.gameSettings.keyBindForward.isKeyDown()) {
             return false;
+        } else if (this.jumpCheck.getValue() && mc.gameSettings.keyBindJump.isKeyDown()) {
+            return false;
         } else if (this.pitchCheck.getValue() && mc.thePlayer.rotationPitch < 69.0F) {
             return false;
-        } else if(sneakOnly.getValue() && !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode())){
+        } else if (sneakOnly.getValue() && !Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode())) {
             return false;
-        } else if(rightOnly.getValue() && !mc.gameSettings.keyBindUseItem.isKeyDown()){
+        } else if (rightOnly.getValue() && !mc.gameSettings.keyBindUseItem.isKeyDown()) {
             return false;
         } else {
             return (!this.blocksOnly.getValue() || ItemUtil.isHoldingBlock()) && mc.thePlayer.onGround;
@@ -67,13 +70,13 @@ public class Eagle extends Module {
     public void onMoveInput(MoveInputEvent event) {
         if (this.isEnabled() && mc.currentScreen == null) {
 
-            if(sneakOnly.getValue() && Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && shouldSneak()){
+            if (sneakOnly.getValue() && Keyboard.isKeyDown(mc.gameSettings.keyBindSneak.getKeyCode()) && shouldSneak()) {
                 mc.thePlayer.movementInput.sneak = false;
                 mc.thePlayer.movementInput.moveForward /= 0.3F;
                 mc.thePlayer.movementInput.moveStrafe /= 0.3F;
             }
 
-            if(!mc.thePlayer.movementInput.sneak) {
+            if (!mc.thePlayer.movementInput.sneak) {
                 if (this.shouldSneak() && (this.sneakDelay > 0 || this.canMoveSafely())) {
                     mc.thePlayer.movementInput.sneak = true;
                     mc.thePlayer.movementInput.moveStrafe *= 0.3F;

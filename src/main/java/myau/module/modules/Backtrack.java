@@ -28,6 +28,7 @@ import net.minecraft.network.play.server.S19PacketEntityHeadLook;
 import net.minecraft.network.play.server.S0FPacketSpawnMob;
 import net.minecraft.network.play.server.S27PacketExplosion;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 
 import java.awt.*;
@@ -257,7 +258,11 @@ public class Backtrack extends Module {
         }
 
         if (trackedPosition == null) {
-            trackedPosition = new Vec3(target.posX, target.posY, target.posZ);
+            trackedPosition = new Vec3(
+                MathHelper.floor_double(target.posX * 32.0) / 32.0,
+                MathHelper.floor_double(target.posY * 32.0) / 32.0,
+                MathHelper.floor_double(target.posZ * 32.0) / 32.0
+            );
             double hw = target.width / 2.0;
             realAABB = new AxisAlignedBB(
                 trackedPosition.xCoord - hw, trackedPosition.yCoord,
@@ -291,13 +296,22 @@ public class Backtrack extends Module {
         if (!isEnabled() || !esp.getValue()) return;
         if (target == null || realAABB == null) return;
         AxisAlignedBB visual = target.getEntityBoundingBox();
-        double dx = Math.abs(realAABB.minX - visual.minX);
-        double dy = Math.abs(realAABB.minY - visual.minY);
-        double dz = Math.abs(realAABB.minZ - visual.minZ);
-        if (dx < 0.05 && dy < 0.05 && dz < 0.05) return;
-        Color color = (target instanceof EntityPlayer) ? TeamUtil.getTeamColor((EntityPlayer) target, 1.0F) : new Color(255, 60, 60);
+        double dx = realAABB.minX - visual.minX;
+        double dy = realAABB.minY - visual.minY;
+        double dz = realAABB.minZ - visual.minZ;
+        if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01 && Math.abs(dz) < 0.01) return;
+        Color color = (target instanceof EntityPlayer)
+                ? TeamUtil.getTeamColor((EntityPlayer) target, 1.0F)
+                : new Color(255, 60, 60);
         IAccessorRenderManager rm = (IAccessorRenderManager) mc.getRenderManager();
-        AxisAlignedBB aabb = realAABB.offset(-rm.getRenderPosX(), -rm.getRenderPosY(), -rm.getRenderPosZ());
+        AxisAlignedBB aabb = new AxisAlignedBB(
+                realAABB.minX - rm.getRenderPosX(),
+                realAABB.minY - rm.getRenderPosY(),
+                realAABB.minZ - rm.getRenderPosZ(),
+                realAABB.maxX - rm.getRenderPosX(),
+                realAABB.maxY - rm.getRenderPosY(),
+                realAABB.maxZ - rm.getRenderPosZ()
+        );
         RenderUtil.enableRenderState();
         RenderUtil.drawFilledBox(aabb, color.getRed(), color.getGreen(), color.getBlue());
         RenderUtil.disableRenderState();

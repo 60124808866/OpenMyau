@@ -10,6 +10,7 @@ import myau.events.UpdateEvent;
 import myau.management.RotationState;
 import myau.module.modules.AntiDebuff;
 import myau.module.modules.NoSlow;
+import myau.module.modules.Timer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.BlockPos;
@@ -43,6 +44,20 @@ public abstract class MixinEntityPlayerSP extends MixinEntityPlayer {
     public float renderArmYaw;
     @Shadow
     public float prevRenderArmYaw;
+
+    @Inject(
+            method = {"onUpdate"},
+            at = {@At("HEAD")},
+            cancellable = true
+    )
+    private void freezeUpdate(CallbackInfo callbackInfo) {
+        Timer timer = Myau.moduleManager != null
+                ? (Timer) Myau.moduleManager.modules.get(Timer.class)
+                : null;
+        if (timer != null && timer.isFreezing()) {
+            callbackInfo.cancel();
+        }
+    }
 
     @Inject(
             method = {"onUpdate"},

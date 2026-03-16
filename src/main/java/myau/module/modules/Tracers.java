@@ -13,6 +13,7 @@ import myau.util.TeamUtil;
 import myau.property.properties.BooleanProperty;
 import myau.property.properties.PercentProperty;
 import myau.property.properties.ModeProperty;
+import myau.property.properties.IntProperty;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -29,6 +30,7 @@ public class Tracers extends Module {
     public final BooleanProperty drawLines = new BooleanProperty("lines", true);
     public final BooleanProperty drawArrows = new BooleanProperty("arrows", false);
     public final PercentProperty opacity = new PercentProperty("opacity", 100);
+    public final IntProperty distance = new IntProperty("distance", 512, 0, 512);
     public final BooleanProperty showPlayers = new BooleanProperty("players", true);
     public final BooleanProperty showFriends = new BooleanProperty("friends", true);
     public final BooleanProperty showEnemies = new BooleanProperty("enemies", true);
@@ -37,7 +39,7 @@ public class Tracers extends Module {
     private boolean shouldRender(EntityPlayer entityPlayer) {
         if (entityPlayer.deathTime > 0) {
             return false;
-        } else if (mc.getRenderViewEntity().getDistanceToEntity(entityPlayer) > 512.0F) {
+        } else if (mc.getRenderViewEntity().getDistanceToEntity(entityPlayer) > (float) this.distance.getValue()) {
             return false;
         } else if (entityPlayer != mc.thePlayer && entityPlayer != mc.getRenderViewEntity()) {
             if (TeamUtil.isBot(entityPlayer)) {
